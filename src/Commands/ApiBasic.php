@@ -41,13 +41,13 @@ class ApiBasic extends GeneratorCommand
         ]);
 
         if($service == -1) {
-            $this->error('The service `'.$this->argument('name').'` already exists.');
+            $this->warn('The service `'.$this->argument('name').'` already exists.');
         } else if($service != 1) {
             $this->error('Service error code: ' . $service );
         }
 
         if($version == -1) {
-            $this->error('The version `'.$this->argument('version').'` already exists.');
+            $this->warn('The version `'.$this->argument('version').'` already exists.');
         } else if($version != 1) {
             $this->error('Version error code: ' . $version );
         }
@@ -60,9 +60,8 @@ class ApiBasic extends GeneratorCommand
             $path = $this->getPath($name);
 
             if ($this->files->isFile($path) && !$this->option('force')) {
-            $this->error('The Method "'.$name.'" already exists.');
-
-            continue;
+                $this->warn('The Method "'.$name.'" already exists.');
+                continue;
             }
 
             $this->makeDirectory($path);
