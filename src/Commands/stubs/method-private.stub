@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+
+class {{ class }} extends {{ version }}
+{
+    public function __invoke()
+    {
+        return response()->json([
+            'status_code' => 'OK',
+        ]);
+    }
+}

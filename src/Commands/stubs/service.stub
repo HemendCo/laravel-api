@@ -1,0 +1,84 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Http\Request;
+use Laravel\Passport\Passport;
+
+abstract class {{ class }}
+{
+    const PUBLIC_FLAG = 'PUBLIC';
+    const PRIVATE_FLAG = 'PRIVATE';
+    const GUARD = 'api';
+    const SERVICE = '{{ class }}';
+
+    /**
+    * @var Request
+    */
+    protected $request;
+
+    public final function __construct(Request $request)
+    {
+        $this->setRequest($request);
+        $this->setPassportConfig();
+        $this->authorization();
+    }
+
+    /**
+    * @return the $service
+    */
+    protected final function getService()
+    {
+        return self::SERVICE;
+    }
+
+    /**
+    * @return Request
+    */
+    protected final function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+    *
+    * @param Request $request
+    * @return \App\Http\Controllers\Api\Client
+    */
+    private final function setRequest(Request $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+    * Get the available auth instance.
+    *
+    * @param  string|null  $guard
+    * @return \Illuminate\Contracts\Auth\Factory|\Illuminate\Contracts\Auth\Guard|\Illuminate\Contracts\Auth\StatefulGuard
+    */
+    public final function auth()
+    {
+        return auth(self::GUARD);
+    }
+
+    /**
+    * @return void
+    */
+    protected final function setPassportConfig()
+    {
+        Passport::tokensExpireIn(now()->addDays(15));
+        Passport::refreshTokensExpireIn(now()->addDays(30));
+        Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+    }
+
+    /**
+    * @return the $getRunType
+    */
+    abstract public function getRunType();
+
+    /**
+    * @return the bool
+    */
+    abstract protected function authorization();
+}

@@ -1,0 +1,26 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+
+class AuthRefreshToken extends {{ version }}
+{
+    public function __invoke()
+    {
+        $this->user()->token()->revoke();
+
+        $objToken = $this->user()->createToken(parent::SERVICE);
+        $token = $objToken->accessToken;
+        $expiration = $objToken->token->expires_at;
+
+        return response()->json([
+            'status_code' => 'OK',
+            'access' => [
+                'token' => $token,
+                'type' => 'bearer',
+                'expires_in' => $expiration,
+            ],
+        ]);
+    }
+}

@@ -1,0 +1,93 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use Illuminate\Support\Facades\Validator;
+use Propaganistas\LaravelPhone\PhoneNumber;
+
+class AuthSendCode extends {{ version }}
+{
+    public function getRunType()
+    {
+        return parent::PUBLIC_FLAG;
+    }
+
+    public function __invoke()
+    {
+        if($this->hasIdentity()) {
+            return response()->json([
+                'status_code' => 'ALREADY_LOGGED_IN',
+                'status_message' => __('messages.You have already logged in.')
+            ], 409);
+        }
+
+        $input = $this->getRequest()->all();
+
+        foreach (['mobile'] as $key) {
+            if(isset($input[$key]) && is_scalar($input[$key])) {
+                $input[$key] = \App\Libraries\Numbers::persianToLatin($input[$key]);
+            }
+        }
+
+        if(isset($input['mobile'])) {
+            $input['mobile_number'] = $input['mobile'];
+            unset($input['mobile']);
+        }
+
+        $validator = Validator::make($input, [
+            'mobile_number' => 'bail|required|numeric|min:11|phone:IR,mobile',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'MOBILE_NUMBER_INVALID',
+                'status_message' => __('messages.The mobile number invalid')
+            ], 400);
+        }
+
+        $mobile = PhoneNumber::make($input['mobile_number'], 'IR')->formatForMobileDialingInCountry('IR');
+
+        $last_auth_code = \App\Models\UsersAuthCodes::where('mobile', $mobile)
+            ->where('service', parent::SERVICE)
+            ->orderBy('created_at', 'DESC')
+            ->first(['id', 'created_at']);
+
+        if($last_auth_code && strtotime($last_auth_code->created_at) > strtotime('-2 minute')) {
+            return response()->json([
+                'status_code' => 'WAITING_TO_SEND_AGAIN',
+                'status_message' => __('messages.It should take 2 minutes from the last code sent to be sent so that you can request it again.')
+            ], 429);
+        }
+
+        $code = mt_rand(1000, 9999);
+
+        $length = 5;
+        if(PHP_VERSION >= 7) {
+            $bytes = \random_bytes($length);
+        } else {
+            $bytes = \openssl_random_pseudo_bytes($length);
+        }
+
+        $hash = bin2hex($bytes);
+
+        \App\Models\UsersAuthCodes::create([
+            'mobile' => $mobile,
+            'service' => parent::SERVICE,
+            'code' => $code,
+            'hash' => $hash,
+        ]);
+
+        \App\Libraries\Sms::send($mobile, 'LoginCode', [
+            [
+                'Parameter' => 'LoginCode',
+                'ParameterValue' => $code
+            ]
+        ]);
+
+        return response()->json([
+            'status_code' => 'OK',
+            'hash' => $hash,
+        ]);
+    }
+}

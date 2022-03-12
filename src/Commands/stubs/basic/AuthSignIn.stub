@@ -1,0 +1,122 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use Illuminate\Support\Facades\Validator;
+use Propaganistas\LaravelPhone\PhoneNumber;
+
+class AuthSignIn extends {{ version }}
+{
+    public function getRunType()
+    {
+        return parent::PUBLIC_FLAG;
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        foreach (['mobile', 'hash', 'code'] as $key) {
+            if(isset($input[$key]) && is_scalar($input[$key])) {
+                $input[$key] = \App\Libraries\Numbers::persianToLatin($input[$key]);
+            }
+        }
+
+        if(isset($input['mobile'])) {
+            $input['mobile_number'] = $input['mobile'];
+            unset($input['mobile']);
+        }
+
+        $validator = Validator::make($input, [
+            'mobile_number' => 'bail|required|numeric|min:11|phone:IR,mobile',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'MOBILE_NUMBER_INVALID',
+                'status_message' => __('messages.The mobile number invalid')
+            ], 400);
+        }
+
+        $mobile = PhoneNumber::make($input['mobile_number'], 'IR')->formatForMobileDialingInCountry('IR');
+
+        $validator = Validator::make($input, [
+            'hash' => 'bail|required|string|min:10|max:10',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'HASH_INVALID',
+                'status_message' => __('messages.The hash invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'code' => 'bail|required|digits:4'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'CODE_INVALID',
+                'status_message' => __('messages.The validation code invalid')
+            ], 400);
+        }
+
+        $last_auth_code = \App\Models\UsersAuthCodes::where('mobile', $mobile)
+            ->where('service', parent::SERVICE)
+            ->where('code', $input['code'])
+            ->where('hash', $input['hash'])
+            ->whereNull('used_at')
+            ->first(['id', 'created_at']);
+
+        if(!$last_auth_code) {
+            return response()->json([
+                'status_code' => 'AUTH_INFO_INCORRECT',
+                'status_message' => __('messages.Authentication information is incorrect.')
+            ], 401);
+        }
+
+        if(strtotime($last_auth_code->created_at) < strtotime('-2 minute')) {
+            return response()->json([
+                'status_code' => 'CODE_EXPIRED',
+                'status_message' => __('messages.The validation code has expired.')
+            ], 401);
+        }
+
+        $user = \App\Models\Users::where('mobile', $mobile)->where('state', '>=', '0')->first();
+
+        if(!$user) {
+            return response()->json([
+                'status_code' => 'MOBILE_NUMBER_UNOCCUPIED',
+                'status_message' => __('messages.The validation code is valid but no user with the given mobile number is registered.')
+            ], 401);
+        }
+
+        if($user->state != 1) {
+            return response()->json([
+                'status_code' => 'ACCESS_DENIED',
+                'status_message' => __('messages.You do not have access to sign in.')
+            ], 403);
+        }
+
+        \App\Models\UsersAuthCodes::where('id', $last_auth_code->id)
+            ->update([
+                'used_at' => date('Y-m-d H:i:s'),
+            ]);
+
+        $objToken = $user->createToken(parent::SERVICE);
+        $token = $objToken->accessToken;
+        $expiration = $objToken->token->expires_at;
+
+        return response()->json([
+            'status_code' => 'OK',
+            'access' => [
+                'token' => $token,
+                'type' => 'bearer',
+                'expires_in' => $expiration,
+            ],
+            'user' => $user
+        ]);
+    }
+}

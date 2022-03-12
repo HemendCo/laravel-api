@@ -1,0 +1,69 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+
+class {{ class }} extends {{ service }}
+{
+    const VERSION = '{{ version }}';
+
+    protected $token = null;
+
+    /**
+    * @return the $version
+    */
+    public final function getVersion()
+    {
+        return self::VERSION;
+    }
+
+    /**
+    * @return the flag
+    */
+    public function getRunType()
+    {
+        return parent::PRIVATE_FLAG;
+    }
+
+    /**
+    * @return the boolean
+    */
+    protected final function authorization()
+    {
+        try {
+            if($this->user() && $this->user()->token()['name'] == parent::SERVICE) {
+                $this->token = $this->getRequest()->bearerToken();
+                return true;
+            }
+        } catch (\Exception $e) {}
+
+        return false;
+    }
+
+    /**
+    * @return the boolean
+    */
+    public final function getToken()
+    {
+        return $this->token;
+    }
+
+    /**
+    * @return the boolean
+    */
+    public final function hasIdentity()
+    {
+        return $this->token && !!$this->user();
+    }
+
+    /**
+    * Get the currently authenticated user.
+    *
+    * @return \{{ namespacedUserModel }}|null
+    */
+    public final function user()
+    {
+        return $this->auth()->user() ?? null;
+    }
+}

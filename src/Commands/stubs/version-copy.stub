@@ -1,0 +1,10 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ oldNamespace }} as Old{{ oldVersion }};
+
+class {{ class }} extends Old{{ oldVersion }}
+{
+    const VERSION = '{{ version }}';
+}

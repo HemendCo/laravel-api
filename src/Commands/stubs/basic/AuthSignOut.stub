@@ -1,0 +1,23 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+
+class AuthSignOut extends {{ version }}
+{
+    public function __invoke()
+    {
+        $this->user()->token()->revoke();
+
+        if ($this->getRequest()->input('everywhere') == '1') {
+            $this->user()->tokens->each(function ($token, $key) {
+                $token->revoke();
+            });
+        }
+
+        return response()->json([
+            'status_code' => 'OK',
+        ]);
+    }
+}

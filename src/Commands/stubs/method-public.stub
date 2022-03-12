@@ -1,0 +1,20 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+
+class {{ class }} extends {{ version }}
+{
+    public function getRunType()
+    {
+        return parent::PUBLIC_FLAG;
+    }
+
+    public function __invoke()
+    {
+        return response()->json([
+            'status_code' => 'OK',
+        ]);
+    }
+}

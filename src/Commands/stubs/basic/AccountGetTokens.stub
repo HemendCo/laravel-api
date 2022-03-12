@@ -1,0 +1,31 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+
+class AccountGetTokens extends {{ version }}
+{
+    public function __invoke()
+    {
+        $user_tokens = \Laravel\Passport\Token::where('user_id', $this->user()->id)->where('revoked', '0')->get();
+
+        $tokens = [];
+        $user_tokens->each(function ($token, $key) use(&$tokens) {
+            $tokens[] = [
+                'id' => $token->id,
+                'name' => $token->name,
+                'scopes' => $token->scopes,
+                // 'revoked' => $token->revoked,
+                'created_at' => $token->created_at,
+                'updated_at' => $token->updated_at,
+                'expires_at' => $token->expires_at,
+            ];
+        });
+
+        return response()->json([
+            'status_code' => 'OK',
+            'tokens' => $tokens
+        ]);
+    }
+}
