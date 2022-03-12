@@ -26,7 +26,7 @@ class AuthSendCode extends {{ version }}
 
         foreach (['mobile'] as $key) {
             if(isset($input[$key]) && is_scalar($input[$key])) {
-                $input[$key] = \App\Libraries\Numbers::persianToLatin($input[$key]);
+                $input[$key] = \Hemend\Library\Numbers::persianToLatin($input[$key]);
             }
         }
 
@@ -78,7 +78,7 @@ class AuthSendCode extends {{ version }}
             'hash' => $hash,
         ]);
 
-        \App\Libraries\Sms::send($mobile, 'LoginCode', [
+        \Hemend\Library\Sms::send($mobile, 'LoginCode', [
             [
                 'Parameter' => 'LoginCode',
                 'ParameterValue' => $code

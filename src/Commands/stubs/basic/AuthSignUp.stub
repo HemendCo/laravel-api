@@ -26,7 +26,7 @@ class AuthSignUp extends {{ version }}
 
         foreach (['mobile', 'hash', 'code'] as $key) {
             if(isset($input[$key]) && is_scalar($input[$key])) {
-                $input[$key] = \App\Libraries\Numbers::persianToLatin($input[$key]);
+                $input[$key] = \Hemend\Library\Numbers::persianToLatin($input[$key]);
             }
         }
 
