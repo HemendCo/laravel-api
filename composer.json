@@ -1,6 +1,6 @@
 {
     "name": "hemend/laravel-api",
-    "description": "Generate api with service & version & method base ",
+    "description": "Generate api with service & version & method base",
 	"keywords" : [
 		"hemend",
 		"laravel",
