@@ -4,6 +4,7 @@ namespace Hemend\Api\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Http\Controllers\Controller;
 
 class Api extends Controller
 {
