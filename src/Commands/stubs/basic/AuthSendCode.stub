@@ -5,6 +5,7 @@ namespace {{ namespace }};
 use {{ namespace }};
 use Illuminate\Support\Facades\Validator;
 use Propaganistas\LaravelPhone\PhoneNumber;
+use Hemend\Library\Laravel\Sms;
 
 class AuthSendCode extends {{ version }}
 {
@@ -78,12 +79,7 @@ class AuthSendCode extends {{ version }}
             'hash' => $hash,
         ]);
 
-        \Hemend\Library\Sms::send($mobile, 'LoginCode', [
-            [
-                'Parameter' => 'LoginCode',
-                'ParameterValue' => $code
-            ]
-        ]);
+        Sms::sendMessage($mobile, sprintf(__('messages.Login code: %s'), $code));
 
         return response()->json([
             'status_code' => 'OK',
