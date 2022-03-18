@@ -84,7 +84,7 @@ class AuthSignIn extends {{ version }}
             ], 401);
         }
 
-        $user = \App\Models\Users::where('mobile', $mobile)->where('state', '>=', '0')->first();
+        $user = \App\Models\Users::where('mobile', $mobile)->where('status', '>=', '0')->first();
 
         if(!$user) {
             return response()->json([
@@ -93,7 +93,7 @@ class AuthSignIn extends {{ version }}
             ], 401);
         }
 
-        if($user->state != 1) {
+        if($user->status != 1) {
             return response()->json([
                 'status_code' => 'ACCESS_DENIED',
                 'status_message' => __('messages.You do not have access to sign in.')

@@ -13,7 +13,7 @@ abstract class {{ class }}
     const SERVICE = '{{ class }}';
 
     /**
-    * @var Request
+    * @var Request $request
     */
     protected $request;
 
@@ -25,7 +25,7 @@ abstract class {{ class }}
     }
 
     /**
-    * @return the $service
+    * @return string $service
     */
     protected final function getService()
     {
@@ -41,7 +41,6 @@ abstract class {{ class }}
     }
 
     /**
-    *
     * @param Request $request
     * @return \App\Http\Controllers\Api\Client
     */
@@ -54,7 +53,6 @@ abstract class {{ class }}
     /**
     * Get the available auth instance.
     *
-    * @param  string|null  $guard
     * @return \Illuminate\Contracts\Auth\Factory|\Illuminate\Contracts\Auth\Guard|\Illuminate\Contracts\Auth\StatefulGuard
     */
     public final function auth()
@@ -73,12 +71,12 @@ abstract class {{ class }}
     }
 
     /**
-    * @return the $getRunType
+    * @return string
     */
     abstract public function getRunType();
 
     /**
-    * @return the bool
+    * @return boolean
     */
     abstract protected function authorization();
 }

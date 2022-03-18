@@ -91,7 +91,7 @@ class AuthSignUp extends {{ version }}
             ], 401);
         }
 
-        $user = \App\Models\Users::where('mobile', $mobile)->where('state', '>=', '0')->first();
+        $user = \App\Models\Users::where('mobile', $mobile)->where('status', '>=', '0')->first();
 
         if($user) {
             return response()->json([
@@ -106,7 +106,7 @@ class AuthSignUp extends {{ version }}
             ]);
 
         $user = \App\Models\Users::create([
-            'state' => '1',
+            'status' => '1',
             'mobile' => $mobile,
             'role' => 'User',
         ]);

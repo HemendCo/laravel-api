@@ -11,7 +11,7 @@ class {{ class }} extends {{ service }}
     protected $token = null;
 
     /**
-    * @return the $version
+    * @return string $version
     */
     public final function getVersion()
     {
@@ -19,7 +19,7 @@ class {{ class }} extends {{ service }}
     }
 
     /**
-    * @return the flag
+    * @return string flag
     */
     public function getRunType()
     {
@@ -27,7 +27,7 @@ class {{ class }} extends {{ service }}
     }
 
     /**
-    * @return the boolean
+    * @return boolean
     */
     protected final function authorization()
     {
@@ -42,7 +42,7 @@ class {{ class }} extends {{ service }}
     }
 
     /**
-    * @return the boolean
+    * @return boolean
     */
     public final function getToken()
     {
@@ -50,7 +50,7 @@ class {{ class }} extends {{ service }}
     }
 
     /**
-    * @return the boolean
+    * @return boolean
     */
     public final function hasIdentity()
     {
