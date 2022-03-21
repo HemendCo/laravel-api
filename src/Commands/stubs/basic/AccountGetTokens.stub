@@ -3,15 +3,47 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
+use Illuminate\Support\Facades\Validator;
 
 class AccountGetTokens extends {{ version }}
 {
     public function __invoke()
     {
-        $user_tokens = \Laravel\Passport\Token::where('user_id', $this->user()->id)->where('revoked', '0')->get();
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'page_number' => 'bail|nullable|numeric|min:1',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PAGE_NUMBER_INVALID',
+                'status_message' => __('messages.The page number invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'page_limit' => 'bail|nullable|numeric|between:1,100',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PAGE_LIMIT_INVALID',
+                'status_message' => __('messages.The page limit invalid')
+            ], 400);
+        }
+
+        $page_number = $input['page_number'] ?? 1;
+        $page_limit = $input['page_limit'] ?? 20;
+
+        $query = \Laravel\Passport\Token::query();
+        $query->where('user_id', $this->user()->id);
+        $query->where('revoked', '0');
+
+        $paginate = $query->paginate($page_limit, ['*'], 'page_number', $page_number);
 
         $tokens = [];
-        $user_tokens->each(function ($token, $key) use(&$tokens) {
+        $paginate->items()->each(function ($token, $key) use(&$tokens) {
             $tokens[] = [
                 'id' => $token->id,
                 'name' => $token->name,
@@ -25,7 +57,13 @@ class AccountGetTokens extends {{ version }}
 
         return response()->json([
             'status_code' => 'OK',
-            'tokens' => $tokens
+            'tokens' => $tokens,
+            'page' => [
+                'current' 	=> $paginate->currentPage(),
+                'last' 		=> $paginate->lastPage(),
+                'total' 	=> $paginate->total(),
+                'limit' 	=> $paginate->perPage(),
+            ]
         ]);
     }
 }
