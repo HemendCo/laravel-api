@@ -15,6 +15,14 @@ class ApiServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->app->register(ConsoleServiceProvider::class);
+
+        $configPath = __DIR__ . '/../config/config.php';
+
+        $this->mergeConfigFrom($configPath, 'api');
+
+        $this->publishes([
+            $configPath => config_path('api.php'),
+        ], 'config');
     }
     
     /**

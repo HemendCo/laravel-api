@@ -22,8 +22,11 @@ class AccountGetTokens extends {{ version }}
             ], 400);
         }
 
+        $limit_min   = config('api.paginate.limit.min');
+        $limit_max   = config('api.paginate.limit.max');
+
         $validator = Validator::make($input, [
-            'page_limit' => 'bail|nullable|numeric|between:1,100',
+            'page_limit' => 'bail|nullable|numeric|between:'.$limit_min.','.$limit_max,
         ]);
 
         if($validator->fails()) {
@@ -34,7 +37,7 @@ class AccountGetTokens extends {{ version }}
         }
 
         $page_number = $input['page_number'] ?? 1;
-        $page_limit = $input['page_limit'] ?? 20;
+        $page_limit = $input['page_limit'] ?? $limit_min;
 
         $query = \Laravel\Passport\Token::query();
         $query->where('user_id', $this->user()->id);
