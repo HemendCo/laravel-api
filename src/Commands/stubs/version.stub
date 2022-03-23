@@ -32,7 +32,7 @@ class {{ class }} extends {{ service }}
     protected final function authorization()
     {
         try {
-            if($this->user() && $this->user()->token()['name'] == parent::SERVICE) {
+            if($this->user() && $this->user()->token()['name'] == parent::SERVICE && $this->user()->status == 1) {
                 $this->token = $this->getRequest()->bearerToken();
                 return true;
             }
