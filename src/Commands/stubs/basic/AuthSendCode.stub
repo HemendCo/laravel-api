@@ -57,7 +57,8 @@ class AuthSendCode extends {{ version }}
         if($last_auth_code && strtotime($last_auth_code->created_at) > strtotime('-2 minute')) {
             return response()->json([
                 'status_code' => 'WAITING_TO_SEND_AGAIN',
-                'status_message' => __('messages.It should take 2 minutes from the last code sent to be sent so that you can request it again.')
+                'status_message' => __('messages.It should take 2 minutes from the last code sent to be sent so that you can request it again.'),
+                'remaining_time' => strtotime($last_auth_code->created_at) - strtotime('-2 minutes')
             ], 429);
         }
 
