@@ -20,7 +20,7 @@ class AuthRefreshToken extends {{ version }}
         $input = $this->getRequest()->all();
 
         $validator = Validator::make($input, [
-            'refresh_token' => 'bail|required|string|max:2000',
+            'refresh_token' => 'bail|required|string|max:1500',
         ]);
 
         if($validator->fails()) {
