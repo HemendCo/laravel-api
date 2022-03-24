@@ -46,7 +46,7 @@ class AccountGetTokens extends {{ version }}
         $paginate = $query->paginate($page_limit, ['*'], 'page_number', $page_number);
 
         $tokens = [];
-        $paginate->items()->each(function ($token, $key) use(&$tokens) {
+        foreach ($paginate->items() as $token) {
             $tokens[] = [
                 'id' => $token->id,
                 'name' => $token->name,
@@ -56,7 +56,7 @@ class AccountGetTokens extends {{ version }}
                 'updated_at' => $token->updated_at,
                 'expires_at' => $token->expires_at,
             ];
-        });
+        }
 
         return response()->json([
             'status_code' => 'OK',

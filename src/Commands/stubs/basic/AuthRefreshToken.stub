@@ -3,24 +3,51 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
+use Hemend\Api\Traits\PassportToken;
+use Illuminate\Support\Facades\Validator;
 
 class AuthRefreshToken extends {{ version }}
 {
+    use PassportToken;
+
+    public function getRunType()
+    {
+        return parent::PUBLIC_FLAG;
+    }
+
     public function __invoke()
     {
-        $this->user()->token()->revoke();
+        $input = $this->getRequest()->all();
 
-        $objToken = $this->user()->createToken(parent::SERVICE);
-        $token = $objToken->accessToken;
-        $expiration = $objToken->token->expires_at;
-
-        return response()->json([
-            'status_code' => 'OK',
-            'access' => [
-                'token' => $token,
-                'type' => 'bearer',
-                'expires_in' => $expiration,
-            ],
+        $validator = Validator::make($input, [
+            'refresh_token' => 'bail|required|string|max:2000',
         ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'REFRESH_TOKEN_INVALID',
+                'status_message' => __('messages.The refresh token invalid')
+            ], 400);
+        }
+
+        try {
+            $token = $this->regenerateBearerTokenByRefreshToken($input['refresh_token']);
+            $expiration = \Illuminate\Support\Carbon::now()->addSeconds($token['expires_in']);
+
+            return response()->json([
+                'status_code' => 'OK',
+                'access' => [
+                    'token_type' => $token['token_type'],
+                    'expires_in' => $expiration,
+                    'access_token' => $token['access_token'],
+                    'refresh_token' => $token['refresh_token'],
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status_code' => 'REFRESH_TOKEN_INVALID',
+                'status_message' => __('messages.The refresh token invalid')
+            ], 400);
+        }
     }
 }

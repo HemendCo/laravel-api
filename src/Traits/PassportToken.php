@@ -11,13 +11,17 @@ use Laravel\Passport\Bridge\AccessToken;
 use Laravel\Passport\Bridge\AccessTokenRepository;
 use Laravel\Passport\Bridge\Client;
 use Laravel\Passport\Bridge\RefreshTokenRepository;
+use Laravel\Passport\Bridge\ScopeRepository;
 use Laravel\Passport\Passport;
 use Laravel\Passport\TokenRepository;
 use League\OAuth2\Server\CryptKey;
+use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
+
 
 /**
  * Trait PassportToken
@@ -28,6 +32,8 @@ use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
  */
 trait PassportToken
 {
+    use CryptTrait;
+
     /**
      * Generate a new unique identifier.
      *
@@ -74,7 +80,7 @@ trait PassportToken
         }
     }
 
-    private function createPassportTokenByUser(User $user, $clientId, $tokenScopes = [])
+    private function createPassportTokenByUser($userId, $clientId, $tokenScopes = [])
     {
         $scopes = [];
         if (is_array($tokenScopes)) {
@@ -83,7 +89,7 @@ trait PassportToken
             }
         }
 
-        $accessToken = new AccessToken($user->id, $scopes, new Client(null, null, null));
+        $accessToken = new AccessToken($userId, $scopes, new Client(null, null, null));
         $accessToken->setIdentifier($this->generateUniqueIdentifier());
         $accessToken->setClient(new Client($clientId, null, null));
         $accessToken->setExpiryDateTime((new DateTimeImmutable())->add(Passport::tokensExpireIn()));
@@ -117,6 +123,97 @@ trait PassportToken
     }
 
     /**
+     * @param string $encryptedRefreshToken
+     * @param string $clientId
+     *
+     * @throws OAuthServerException
+     *
+     * @return array
+     */
+    private function validateOldRefreshToken($encryptedRefreshToken, $clientId)
+    {
+        $this->setEncryptionKey(app('encrypter')->getKey());
+
+        if (!\is_string($encryptedRefreshToken)) {
+            throw OAuthServerException::invalidRequest('refresh_token');
+        }
+
+        try {
+            $refreshToken = $this->decrypt($encryptedRefreshToken);
+        } catch (\Exception $e) {
+            throw OAuthServerException::invalidRefreshToken('Cannot decrypt the refresh token', $e);
+        }
+
+        $refreshTokenData = \json_decode($refreshToken, true);
+        if ($refreshTokenData['client_id'] != $clientId) {
+            throw OAuthServerException::invalidRefreshToken('Token is not linked to client');
+        }
+
+        if ($refreshTokenData['expire_time'] < \time()) {
+            throw OAuthServerException::invalidRefreshToken('Token has expired');
+        }
+
+        $refreshTokenRepository = app(RefreshTokenRepository::class);
+        if ($refreshTokenRepository->isRefreshTokenRevoked($refreshTokenData['refresh_token_id']) === true) {
+            throw OAuthServerException::invalidRefreshToken('Token has been revoked');
+        }
+
+        return $refreshTokenData;
+    }
+
+    /**
+     * Converts a scopes query string to an array to easily iterate for validation.
+     *
+     * @param string $scopes
+     *
+     * @return array
+     */
+    private function convertScopesQueryStringToArray(string $scopes)
+    {
+        return \array_filter(\explode(' ', \trim($scopes)), function ($scope) {
+            return $scope !== '';
+        });
+    }
+
+    /**
+     * Validate scopes in the request.
+     *
+     * @param string|array $scopes
+     * @param string       $redirectUri
+     *
+     * @throws OAuthServerException
+     *
+     * @return ScopeEntityInterface[]
+     */
+    private function validateScopes($scopes, $redirectUri = null)
+    {
+        if ($scopes === null) {
+            $scopes = [];
+        } elseif (\is_string($scopes)) {
+            $scopes = $this->convertScopesQueryStringToArray($scopes);
+        }
+
+        if (!\is_array($scopes)) {
+            throw OAuthServerException::invalidRequest('scope');
+        }
+
+        $validScopes = [];
+
+        $scopeRepository = new ScopeRepository();
+        foreach ($scopes as $scopeItem) {
+            $scope = $scopeRepository->getScopeEntityByIdentifier($scopeItem);
+
+            if ($scope instanceof ScopeEntityInterface === false) {
+                throw OAuthServerException::invalidScope($scopeItem, $redirectUri);
+            }
+
+            $validScopes[] = $scope;
+        }
+
+        return $validScopes;
+    }
+
+    /**
      * @param User $user
      * @param array $tokenScopes
      * @param numeric $clientId default = 1
@@ -128,7 +225,52 @@ trait PassportToken
         //you can simply use this method (available only on laravel 6.x)
         //return collect($user->createToken(''))->forget('token');
 
-        $passportToken = $this->createPassportTokenByUser($user, $clientId, $tokenScopes);
+        $passportToken = $this->createPassportTokenByUser($user->id, $clientId, $tokenScopes);
+        $bearerToken = $this->sendBearerTokenResponse($passportToken['access_token'], $passportToken['refresh_token']);
+
+        if (! $output) {
+            $bearerToken = json_decode($bearerToken->getBody()->__toString(), true);
+        }
+
+        return $bearerToken;
+    }
+
+    /**
+     * @param string $refreshToken
+     * @param numeric $clientId default = 1
+     * @param bool $output default = false
+     * @return array|\Illuminate\Support\Collection|BearerTokenResponse
+     */
+    protected function regenerateBearerTokenByRefreshToken($refreshToken, $clientId = 1, $output = false)
+    {
+        $oldRefreshToken = $this->validateOldRefreshToken($refreshToken, $clientId);
+
+        $scopes = $this->validateScopes($oldRefreshToken['scopes']);
+        $api_service_scope_exists = false;
+        $scopesArray = [];
+        foreach ($scopes as $scope) {
+            if (\in_array($scope->getIdentifier(), $oldRefreshToken['scopes'], true) === false) {
+                throw OAuthServerException::invalidScope($scope->getIdentifier());
+            }
+
+            $scopesArray[] = $scope->getIdentifier();
+
+            if(parent::SERVICE === $scope->getIdentifier()) {
+                $api_service_scope_exists = true;
+            }
+        }
+
+        if(!$api_service_scope_exists) {
+            throw OAuthServerException::invalidScope(parent::SERVICE);
+        }
+
+        $tokenRepository = app('Laravel\Passport\TokenRepository');
+        $tokenRepository->revokeAccessToken($oldRefreshToken['access_token_id']);
+
+        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
+        $refreshTokenRepository->revokeRefreshToken($oldRefreshToken['refresh_token_id']);
+
+        $passportToken = $this->createPassportTokenByUser($oldRefreshToken['user_id'], $clientId, $scopesArray);
         $bearerToken = $this->sendBearerTokenResponse($passportToken['access_token'], $passportToken['refresh_token']);
 
         if (! $output) {

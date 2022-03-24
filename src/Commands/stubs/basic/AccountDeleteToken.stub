@@ -33,6 +33,9 @@ class AccountDeleteToken extends {{ version }}
 
         $token->delete();
 
+        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
+        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($token->id);
+
         return response()->json([
             'status_code' => 'OK',
         ]);

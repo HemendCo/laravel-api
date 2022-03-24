@@ -5,9 +5,12 @@ namespace {{ namespace }};
 use {{ namespace }};
 use Illuminate\Support\Facades\Validator;
 use Propaganistas\LaravelPhone\PhoneNumber;
+use Hemend\Api\Traits\PassportToken;
 
 class AuthSignIn extends {{ version }}
 {
+    use PassportToken;
+
     public function getRunType()
     {
         return parent::PUBLIC_FLAG;
@@ -105,16 +108,16 @@ class AuthSignIn extends {{ version }}
                 'used_at' => date('Y-m-d H:i:s'),
             ]);
 
-        $objToken = $user->createToken(parent::SERVICE);
-        $token = $objToken->accessToken;
-        $expiration = $objToken->token->expires_at;
+        $token = $this->getBearerTokenByUser($user, [parent::SERVICE]);
+        $expiration = \Illuminate\Support\Carbon::now()->addSeconds($token['expires_in']);
 
         return response()->json([
             'status_code' => 'OK',
             'access' => [
-                'token' => $token,
-                'type' => 'bearer',
+                'token_type' => $token['token_type'],
                 'expires_in' => $expiration,
+                'access_token' => $token['access_token'],
+                'refresh_token' => $token['refresh_token'],
             ],
             'user' => $user
         ]);
