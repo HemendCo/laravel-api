@@ -118,11 +118,12 @@ trait PassportToken
 
     /**
      * @param User $user
-     * @param $clientId
+     * @param array $tokenScopes
+     * @param numeric $clientId default = 2
      * @param bool $output default = false
      * @return array|\Illuminate\Support\Collection|BearerTokenResponse
      */
-    protected function getBearerTokenByUser(User $user, $clientId=2, $tokenScopes = [], $output = false)
+    protected function getBearerTokenByUser(User $user, $tokenScopes = [], $clientId=2, $output = false)
     {
         //you can simply use this method (available only on laravel 6.x)
         //return collect($user->createToken(''))->forget('token');
