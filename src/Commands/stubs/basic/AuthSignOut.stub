@@ -10,9 +10,13 @@ class AuthSignOut extends {{ version }}
     {
         $this->user()->token()->revoke();
 
+        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
+        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($this->user()->token()->id);
+
         if ($this->getRequest()->input('everywhere') == '1') {
-            $this->user()->tokens->each(function ($token, $key) {
+            $this->user()->tokens->each(function ($token, $key) use ($refreshTokenRepository) {
                 $token->revoke();
+                $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($token->id);
             });
         }
 
