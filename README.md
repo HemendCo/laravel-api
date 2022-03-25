@@ -16,6 +16,30 @@ Use shields for your packagist.org repository that shows how many times your pro
 php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=config
 ```
 
+#### Copy the package migrations to your local migrations with the publish command:
+
+```shell
+php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=migrations
+```
+
+#### Copy the package seeders to your local seeders with the publish command:
+
+```shell
+php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=seeders
+```
+
+#### Copy the package models to your local models with the publish command:
+
+```shell
+php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=models
+```
+
+#### Execute the above commands together to publish:
+
+```shell
+php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=models
+```
+
 ## License
 
 Licensed under the MIT license, see [LICENSE](LICENSE)
