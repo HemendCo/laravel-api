@@ -8,37 +8,69 @@ Use shields for your packagist.org repository that shows how many times your pro
 <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php->=7.4-777bb3.svg?logoColor=white&labelColor=555555"></a>
 <!-- [![PHP Version Require](http://poser.pugx.org/hemend/laravel-api/require/php)](https://packagist.org/packages/hemend/laravel-api) -->
 
-## Usage
+## Requirements
 
-#### Execute the following commands together to publish:
+### - It is mandatory to delete files whose path is listed below:
+```
+- app/Models/User.php
+- database/migrations/2014_10_12_000000_create_users_table.php
+- database/migrations/2014_10_12_100000_create_password_resets_table.php
+- database/seeders/DatabaseSeeder.php
+```
 
-```shell
+#### - Publish commands
+In this section, you need to copy the required files from the package to your local path.
+
+**If you execute the following command, you do not need to use commands after that:**
+```php
 php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=api
 ```
+<details><summary>Copy config</summary>
 
-#### Copy the package config to your local config with the publish command:
+> php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=config
+</details>
 
-```shell
-php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=config
+<details><summary>Copy migrations</summary>
+
+> php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=migrations
+</details>
+
+<details><summary>Copy seeders</summary>
+
+> php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=seeders
+</details>
+
+<details><summary>Copy models</summary>
+
+> php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=models
+</details>
+
+## Config
+
+Edit `config/auth.php`:
+```php
+...
+    'guards' => [
+    ...
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
+    ...
+    ],
+    ...
+    'providers' => [
+    ...
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Users::class,
+        ],
+    ...
+    ],
 ```
 
-#### Copy the package migrations to your local migrations with the publish command:
-
-```shell
-php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=migrations
-```
-
-#### Copy the package seeders to your local seeders with the publish command:
-
-```shell
-php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=seeders
-```
-
-#### Copy the package models to your local models with the publish command:
-
-```shell
-php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=models
-```
+## Api commands
+#### Edit config/auth.php:
 
 ## License
 
