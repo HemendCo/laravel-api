@@ -2,9 +2,10 @@
 
 namespace Hemend\Api;
 
+use Hemend\Api\Providers\ConsoleServiceProvider;
+//use Hemend\Api\Providers\SeedServiceProvider;
 use Illuminate\Support\ServiceProvider;
 
-use Hemend\Api\Providers\ConsoleServiceProvider;
 
 class ApiServiceProvider extends ServiceProvider
 {
@@ -15,14 +16,29 @@ class ApiServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->app->register(ConsoleServiceProvider::class);
+//        $this->app->register(SeedServiceProvider::class);
 
         $configPath = __DIR__ . '/../config/config.php';
 
         $this->mergeConfigFrom($configPath, 'api');
 
-        $this->publishes([
-            $configPath => config_path('api.php'),
-        ], 'config');
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                $configPath => config_path('api.php'),
+            ], ['config', 'api']);
+
+            $this->publishes([
+                __DIR__.'/../database/migrations' => database_path('migrations'),
+            ], ['migrations', 'api']);
+
+            $this->publishes([
+                __DIR__.'/../database/seeders/' => database_path('seeders'),
+            ], ['seeders', 'api']);
+
+            $this->publishes([
+                __DIR__.'/../models' => app_path('Models'),
+            ], ['models', 'api']);
+        }
     }
     
     /**
