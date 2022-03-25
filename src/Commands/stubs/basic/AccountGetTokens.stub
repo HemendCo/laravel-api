@@ -4,6 +4,7 @@ namespace {{ namespace }};
 
 use {{ namespace }};
 use Illuminate\Support\Facades\Validator;
+use Laravel\Passport\Token;
 
 class AccountGetTokens extends {{ version }}
 {
@@ -39,7 +40,7 @@ class AccountGetTokens extends {{ version }}
         $page_number = $input['page_number'] ?? 1;
         $page_limit = $input['page_limit'] ?? $limit_min;
 
-        $query = \Laravel\Passport\Token::query();
+        $query = Token::query();
         $query->where('user_id', $this->user()->id);
         $query->where('revoked', '0');
 

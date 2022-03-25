@@ -3,9 +3,13 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
+use App\Models\Users;
+use App\Models\UsersAuthCodes;
+use Hemend\Api\Traits\PassportToken;
+usr Hemend\Library\Numbers;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Propaganistas\LaravelPhone\PhoneNumber;
-use Hemend\Api\Traits\PassportToken;
 
 class AuthSignIn extends {{ version }}
 {
@@ -22,7 +26,7 @@ class AuthSignIn extends {{ version }}
 
         foreach (['mobile', 'hash', 'code'] as $key) {
             if(isset($input[$key]) && is_scalar($input[$key])) {
-                $input[$key] = \Hemend\Library\Numbers::persianToLatin($input[$key]);
+                $input[$key] = Numbers::persianToLatin($input[$key]);
             }
         }
 
@@ -66,7 +70,7 @@ class AuthSignIn extends {{ version }}
             ], 400);
         }
 
-        $last_auth_code = \App\Models\UsersAuthCodes::where('mobile', $mobile)
+        $last_auth_code = UsersAuthCodes::where('mobile', $mobile)
             ->where('service', parent::SERVICE)
             ->where('code', $input['code'])
             ->where('hash', $input['hash'])
@@ -87,7 +91,7 @@ class AuthSignIn extends {{ version }}
             ], 401);
         }
 
-        $user = \App\Models\Users::where('mobile', $mobile)->where('status', '>=', '0')->first();
+        $user = Users::where('mobile', $mobile)->where('status', '>=', '0')->first();
 
         if(!$user) {
             return response()->json([
@@ -103,13 +107,13 @@ class AuthSignIn extends {{ version }}
             ], 403);
         }
 
-        \App\Models\UsersAuthCodes::where('id', $last_auth_code->id)
+        UsersAuthCodes::where('id', $last_auth_code->id)
             ->update([
                 'used_at' => date('Y-m-d H:i:s'),
             ]);
 
         $token = $this->getBearerTokenByUser($user, [parent::SERVICE]);
-        $expiration = \Illuminate\Support\Carbon::now()->addSeconds($token['expires_in']);
+        $expiration = Carbon::now()->addSeconds($token['expires_in']);
 
         return response()->json([
             'status_code' => 'OK',

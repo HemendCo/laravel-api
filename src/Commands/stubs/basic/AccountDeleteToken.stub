@@ -4,6 +4,7 @@ namespace {{ namespace }};
 
 use {{ namespace }};
 use Illuminate\Support\Facades\Validator;
+use Laravel\Passport\Token;
 
 class AccountDeleteToken extends {{ version }}
 {
@@ -22,7 +23,7 @@ class AccountDeleteToken extends {{ version }}
             ], 400);
         }
 
-        $token = \Laravel\Passport\Token::where('user_id', $this->user()->id)->find($input['token_id']);
+        $token = Token::where('user_id', $this->user()->id)->find($input['token_id']);
 
         if(!$token) {
             return response()->json([

@@ -42,7 +42,7 @@ abstract class {{ class }}
 
     /**
     * @param Request $request
-    * @return \App\Http\Controllers\Api\Client
+    * @return self
     */
     private final function setRequest(Request $request)
     {
@@ -76,6 +76,8 @@ abstract class {{ class }}
         Passport::tokensExpireIn(now()->addDays(15));
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+
+        return $this;
     }
 
     /**

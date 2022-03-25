@@ -4,6 +4,7 @@ namespace {{ namespace }};
 
 use {{ namespace }};
 use Hemend\Api\Traits\PassportToken;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 
 class AuthRefreshToken extends {{ version }}
@@ -32,7 +33,7 @@ class AuthRefreshToken extends {{ version }}
 
         try {
             $token = $this->regenerateBearerTokenByRefreshToken($input['refresh_token']);
-            $expiration = \Illuminate\Support\Carbon::now()->addSeconds($token['expires_in']);
+            $expiration = Carbon::now()->addSeconds($token['expires_in']);
 
             return response()->json([
                 'status_code' => 'OK',
