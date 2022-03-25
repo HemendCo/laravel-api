@@ -10,7 +10,7 @@ Use shields for your packagist.org repository that shows how many times your pro
 
 ## Requirements
 
-### - It is mandatory to delete files whose path is listed below:
+### It is mandatory to delete files whose path is listed below:
 ```
 - app/Models/User.php
 - database/migrations/2014_10_12_000000_create_users_table.php
@@ -18,7 +18,7 @@ Use shields for your packagist.org repository that shows how many times your pro
 - database/seeders/DatabaseSeeder.php
 ```
 
-#### - Publish commands
+#### Publish commands
 In this section, you need to copy the required files from the package to your local path.
 
 **If you execute the following command, you do not need to use commands after that:**
@@ -70,7 +70,47 @@ Edit `config/auth.php`:
 ```
 
 ## Api commands
-#### Edit config/auth.php:
+#### Keyword meanings
+
+|Keywword        |Meaning                        |Example                                            |
+|----------------|-------------------------------|---------------------------------------------------|
+|[Name]          |Service name                   |`Admins` or `Users` ...                            |
+|[Version]       |Version of service             |`1` or `'1.0'` ...                                 |
+|[Method]        |Method from the server version |`AuthSignIn` or `AccountGetTokens` ...             |
+|[SrcVersion]    |Version source of service      |`1` or `'1.0'` ...                                 |
+|[DstVersion]    |Version destination of service |`2` or `'2.0'` ...                                 |
+|[Flag]          |Set the endpoint type          |`private` or `public`                              |
+
+#### Create a service with default endpoints:
+```php
+php artisan make:api-basic [Name] [Version]
+```
+
+#### Create a specific endpoint (It is created if there is no service and version)
+```php
+php artisan make:api-maker [Name] [Version] [Method] --flag=[Flag]
+```
+
+#### Create a specific endpoint (You will get an error if there is no service and version)
+```php
+php artisan make:api-method [Name] [Version] [Method] --flag=[Flag]
+```
+
+#### Create a service:
+```php
+php artisan make:api-service [Name]
+```
+
+#### Create a version for service:
+```php
+php artisan make:api-version [Name] [Version]
+```
+
+#### Copy endpoints from an existing version(source) to a new version(destination):
+```php
+php artisan make:api-version-copy [Name] [SrcVersion] [DstVersion]
+```
+
 
 ## License
 
