@@ -117,7 +117,7 @@ class AuthSignIn extends {{ version }}
 
         return response()->json([
             'status_code' => 'OK',
-            'access' => [
+            'token' => [
                 'token_type' => $token['token_type'],
                 'expires_in' => $expiration,
                 'access_token' => $token['access_token'],
