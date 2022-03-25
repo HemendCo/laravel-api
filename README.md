@@ -37,7 +37,7 @@ php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=mode
 #### Execute the above commands together to publish:
 
 ```shell
-php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=models
+php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=api
 ```
 
 ## License
