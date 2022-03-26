@@ -18,10 +18,7 @@ class CreateUsersTable extends Migration
             $table->boolean('status')->default(0)->comment('-1=Deleted 0=Inactive 1=Active 2=Suspend 3=Block');
             $table->string('first_name', 70)->nullable();
             $table->string('last_name', 70)->nullable();
-            $table->enum('gender', [
-                'M', // Male
-                'F' // Female
-            ])->nullable()->comment('M=Male F=Female');
+            $table->enum('gender', ['M', 'F'])->nullable()->comment('M=Male F=Female');
             $table->string('mobile', 11)->unique('mobile');
             $table->unsignedBigInteger('created_by')->default(0)->index('created_by');
             $table->timestamps();
