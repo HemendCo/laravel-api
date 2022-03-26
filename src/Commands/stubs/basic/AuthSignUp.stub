@@ -115,7 +115,6 @@ class AuthSignUp extends {{ version }}
         $user = Users::create([
             'status' => '1',
             'mobile' => $mobile,
-            'role' => 'User',
         ]);
 
         $token = $this->getBearerTokenByUser($user, [parent::SERVICE]);
