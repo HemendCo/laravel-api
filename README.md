@@ -126,8 +126,7 @@ php artisan make:api-version [Name] [Version]
 php artisan make:api-version-copy [Name] [SrcVersion] [DstVersion]
 ```
 
-### Other settings
-
+## Other settings
 1. After installing the package and doing the above, you need to migrate to the database:
 ```shell
 php artisan migrate
