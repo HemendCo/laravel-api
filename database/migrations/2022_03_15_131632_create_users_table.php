@@ -15,7 +15,7 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->boolean('status')->default(0)->comment('-1=Deleted 0=Inactive 1=Active 2=Suspend 3=Block'); // -1=Deleted 0=Inactive 1=Active 2=Suspend 3=Block
+            $table->boolean('status')->default(0)->comment('-1=Deleted 0=Inactive 1=Active 2=Suspend 3=Block');
             $table->string('first_name', 70)->nullable();
             $table->string('last_name', 70)->nullable();
             $table->enum('gender', [
