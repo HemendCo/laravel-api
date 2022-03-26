@@ -6,7 +6,7 @@ use {{ namespace }};
 use App\Models\Users;
 use App\Models\UsersAuthCodes;
 use Hemend\Api\Traits\PassportToken;
-usr Hemend\Library\Numbers;
+use Hemend\Library\Numbers;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Propaganistas\LaravelPhone\PhoneNumber;
