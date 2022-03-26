@@ -90,10 +90,10 @@ Route::group(['namespace' => 'Hemend\Api\Controllers\\'], function ($router) {
 |Keywword        |Meaning                        |Example                                            |
 |----------------|-------------------------------|---------------------------------------------------|
 |[Name]          |Service name                   |`Admins` or `Users` ...                            |
-|[Version]       |Version of service             |`1` or `'1.0'` ...                                 |
+|[Version]       |Version of service             |`1` or `1.0` ...                                   |
 |[Method]        |Method from the server version |`AuthSignIn` or `AccountGetTokens` ...             |
-|[SrcVersion]    |Source version of service      |`1` or `'1.0'` ...                                 |
-|[DstVersion]    |Destination version of service |`2` or `'2.0'` ...                                 |
+|[SrcVersion]    |Source version of service      |`1` or `1.0` ...                                   |
+|[DstVersion]    |Destination version of service |`2` or `2.0` ...                                   |
 |[Flag]          |Set the endpoint type          |`private` or `public`                              |
 
 #### Create a service with default endpoints:
