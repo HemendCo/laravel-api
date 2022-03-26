@@ -9,7 +9,6 @@ Use shields for your packagist.org repository that shows how many times your pro
 <!-- [![PHP Version Require](http://poser.pugx.org/hemend/laravel-api/require/php)](https://packagist.org/packages/hemend/laravel-api) -->
 
 ## Requirements
-
 ### It is mandatory to delete files whose path is listed below:
 ```
 - app/Models/User.php
@@ -20,8 +19,7 @@ Use shields for your packagist.org repository that shows how many times your pro
 
 #### Publish commands
 In this section, you need to copy the required files from the package to your local path.
-
-**If you execute the following command, you do not need to use commands after that:**
+If you execute the following command, you do not need to use commands after that:
 ```php
 php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=api
 ```
@@ -45,9 +43,8 @@ php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=api
 > php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=models
 </details>
 
-## Config
-
-Edit `config/auth.php`:
+### Changes in project files
+1. Edit `config/auth.php`:
 ```php
 ...
     'guards' => [
@@ -69,9 +66,27 @@ Edit `config/auth.php`:
     ],
 ```
 
+2. Empty the contents of the `routes/api.php` file and paste the following codes:
+```php
+function callApiRoute($route_name) {
+    Route::any('/{service}/{version}/{method}', 'Api')->where([
+        'service' => '[a-zA-Z]+',
+        'version' => '(\d+(?:\.\d+){0,2})',
+        'method' => '([a-z][a-zA-Z0-9]+(\.?[a-z][a-zA-Z0-9]+)?)'
+    ])->name($route_name);
+}
+
+Route::group(['namespace' => 'Hemend\Api\Controllers\\'], function ($router) {
+    callApiRoute('Api');
+
+    Route::group(['prefix' => 'demo'], function ($router) {
+        callApiRoute('DemoApi');
+    });
+});
+```
+
 ## Api commands
 #### Keyword meanings
-
 |Keywword        |Meaning                        |Example                                            |
 |----------------|-------------------------------|---------------------------------------------------|
 |[Name]          |Service name                   |`Admins` or `Users` ...                            |
@@ -111,7 +126,13 @@ php artisan make:api-version [Name] [Version]
 php artisan make:api-version-copy [Name] [SrcVersion] [DstVersion]
 ```
 
+### Other settings
+
+1. After installing the package and doing the above, you need to migrate to the database:
+```shell
+php artisan migrate
+php artisan passport:install
+```
 
 ## License
-
 Licensed under the MIT license, see [LICENSE](LICENSE)
