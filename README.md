@@ -5,8 +5,9 @@ Use shields for your packagist.org repository that shows how many times your pro
 [![Total Downloads](http://poser.pugx.org/hemend/laravel-api/downloads)](https://packagist.org/packages/hemend/laravel-api)
 [![Latest Unstable Version](http://poser.pugx.org/hemend/laravel-api/v/unstable)](https://packagist.org/packages/hemend/laravel-api)
 [![License](http://poser.pugx.org/hemend/laravel-api/license)](https://packagist.org/packages/hemend/laravel-api)
-<a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php->=7.4-777bb3.svg?logoColor=white&labelColor=555555"></a>
-<!-- [![PHP Version Require](http://poser.pugx.org/hemend/laravel-api/require/php)](https://packagist.org/packages/hemend/laravel-api) -->
+[![PHP Version Require](http://poser.pugx.org/hemend/laravel-api/require/php)](https://packagist.org/packages/hemend/laravel-api)
+
+[comment]: <> (<a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php->=7.4-777bb3.svg?logoColor=white&labelColor=555555"></a>)
 
 ## Requirements
 ### It is mandatory to delete files whose path is listed below:
