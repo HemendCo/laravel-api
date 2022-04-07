@@ -1,11 +1,11 @@
 {
     "name": "hemend/laravel-api",
     "description": "Generate api with service & version & method base",
-	"keywords" : [
-		"hemend",
-		"laravel",
-		"api"
-	],
+    "keywords" : [
+        "hemend",
+        "laravel",
+        "api"
+    ],
     "type": "library",
     "require": {
         "php": ">=7.4",
@@ -25,14 +25,14 @@
             "email": "arastbalal@gmail.com"
         }
     ],
-	"extra" : {
-		"laravel" : {
-			"providers" : [
-				"Hemend\\Api\\ApiServiceProvider"
-			],
-			"aliases" : {
-				"Foundation" : "Hemend\\Api\\Facades\\Foundation"
-			}
-		}
-	}
+    "extra" : {
+        "laravel" : {
+            "providers" : [
+                "Hemend\\Api\\ApiServiceProvider"
+            ],
+            "aliases" : {
+                "Foundation" : "Hemend\\Api\\Facades\\Foundation"
+            }
+        }
+    }
 }
