@@ -31,7 +31,7 @@
                 "Hemend\\Api\\ApiServiceProvider"
             ],
             "aliases" : {
-                "Foundation" : "Hemend\\Api\\Facades\\Foundation"
+                "Api" : "Hemend\\Api\\Facades\\Api"
             }
         }
     }
