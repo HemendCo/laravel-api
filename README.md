@@ -45,9 +45,21 @@ php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=api
 </details>
 
 ### Changes in project files
-1. Edit `config/auth.php`:
+1. Edit `public/index.php`:
 ```php
-...
+$app = require_once __DIR__.'/../bootstrap/app.php';
+
+// set the public path to this directory
+$app->bind('path.public', function() {
+    return __DIR__;
+});
+
+$kernel = $app->make(Kernel::class);
+```
+
+2. Edit `config/auth.php`:
+```php
+    ...
     'guards' => [
     ...
         'api' => [
@@ -67,7 +79,7 @@ php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=api
     ],
 ```
 
-2. Empty the contents of the `routes/api.php` file and paste the following codes:
+3. Empty the contents of the `routes/api.php` file and paste the following codes:
 ```php
 function callApiRoute($route_name) {
     Route::any('/{service}/{version}/{method}', 'Api')->where([

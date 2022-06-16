@@ -3,7 +3,7 @@
 namespace Hemend\Api;
 
 use Hemend\Api\Providers\ConsoleServiceProvider;
-//use Hemend\Api\Providers\SeedServiceProvider;
+use Hemend\Api\Providers\RouteServiceProvider;
 use Illuminate\Support\ServiceProvider;
 
 
@@ -16,7 +16,7 @@ class ApiServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->app->register(ConsoleServiceProvider::class);
-//        $this->app->register(SeedServiceProvider::class);
+        $this->app->register(RouteServiceProvider::class);
 
         $configPath = __DIR__ . '/../config/config.php';
 
