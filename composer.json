@@ -11,7 +11,7 @@
         "php": ">=7.4",
         "hemend/php-library": "*",
         "laravel/passport": "*",
-        "propaganistas/laravel-phone": "^4.3"
+        "propaganistas/laravel-phone": "*"
     },
     "license": "MIT",
     "autoload": {
