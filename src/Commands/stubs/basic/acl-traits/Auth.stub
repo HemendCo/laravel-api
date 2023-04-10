@@ -1,0 +1,14 @@
+<?php
+
+namespace App\Http\Controllers\Api\{{ service }}\AclTraits;
+
+trait Auth
+{
+    static public function group(): object
+    {
+        return (object) [
+            'name' => 'Auth',
+            'title' => 'Authentication'
+        ];
+    }
+}

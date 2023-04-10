@@ -4,6 +4,7 @@ namespace Hemend\Api\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+use Hemend\Api\Commands\AclPermissionsCollect;
 use Hemend\Api\Commands\ApiBasic;
 use Hemend\Api\Commands\ApiMaker;
 use Hemend\Api\Commands\ApiMethodMaker;
@@ -19,6 +20,7 @@ class ConsoleServiceProvider extends ServiceProvider
      * @var array
      */
     protected $commands = [
+        AclPermissionsCollect::class,
         ApiBasic::class,
         ApiMaker::class,
         ApiMethodMaker::class,

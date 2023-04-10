@@ -52,8 +52,11 @@ class ApiBasic extends GeneratorCommand
             $this->error('Version error code: ' . $version );
         }
 
-        $version_namespace = $this->qualifyClass($this->createVersionName($this->argument('version')));
+        $version_name = $this->createVersionName($this->argument('version'));
+
+        $version_namespace = $this->qualifyClass($version_name);
         $version_namespace = substr($version_namespace, 0, strrpos( $version_namespace, '\\'));
+        $service_namespace = substr($version_namespace, 0, strrpos( $version_namespace, '\\'));
 
         foreach(glob(__DIR__ . '/stubs/basic/*.stub') as $stub_path) {
             $name = $this->qualifyClass(basename($stub_path, '.stub'));
@@ -67,6 +70,24 @@ class ApiBasic extends GeneratorCommand
             $this->makeDirectory($path);
 
             $this->files->put($path, $this->sortImports($this->buildClass($name, $stub_path, $version_namespace)));
+
+            $this->info($name.' created successfully.');
+        }
+
+        foreach(glob(__DIR__ . '/stubs/basic/acl-traits/*.stub') as $stub_path) {
+            $name = $this->qualifyClass(basename($stub_path, '.stub'));
+            $path = $this->getPath($name);
+
+            $path = str_replace('/'.$version_name.'/', '/AclTraits/', $path);
+
+            if ($this->files->isFile($path) && !$this->option('force')) {
+                $this->warn('The Trait "'.$name.'" already exists.');
+                continue;
+            }
+
+            $this->makeDirectory($path);
+
+            $this->files->put($path, $this->sortImports($this->buildTraitClass($name, $stub_path, $service_namespace)));
 
             $this->info($name.' created successfully.');
         }
@@ -91,6 +112,25 @@ class ApiBasic extends GeneratorCommand
         $version_name = substr($version_namespace, strrpos( $version_namespace, '\\')+1);
 
         return str_replace(['{{ version }}'], [$version_name], $stub);
+    }
+
+    /**
+     * Build the class with the given name.
+     *
+     * @param  string  $name
+     * @return string
+     *
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    protected function buildTraitClass($name, $stub_path=null, $service_namespace=null)
+    {
+        $content = $this->files->get($stub_path);
+
+        $stub = $this->replaceNamespace($content, $name)->replaceClass($content, $name);
+
+        $service_name = substr($service_namespace, strrpos( $service_namespace, '\\')+1);
+
+        return str_replace(['{{ service }}'], [$service_name], $stub);
     }
 
     /**

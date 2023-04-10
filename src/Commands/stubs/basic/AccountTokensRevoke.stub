@@ -3,10 +3,18 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
 use Illuminate\Support\Facades\Validator;
 
-class AccountRevokeToken extends {{ version }}
+class AccountTokensRevoke extends {{ version }}
 {
+    use AclTraits\Account;
+
+    static public function title(): string
+    {
+        return __('Token revoke');
+    }
+    
     public function __invoke()
     {
         $input = $this->getRequest()->all();

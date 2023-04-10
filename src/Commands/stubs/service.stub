@@ -7,15 +7,13 @@ use Laravel\Passport\Passport;
 
 abstract class {{ class }}
 {
-    const PUBLIC_FLAG = 'PUBLIC';
-    const PRIVATE_FLAG = 'PRIVATE';
     const GUARD = 'api';
     const SERVICE = '{{ class }}';
 
     /**
     * @var Request $request
     */
-    protected $request;
+    protected Request $request;
 
     public final function __construct(Request $request)
     {
@@ -80,10 +78,17 @@ abstract class {{ class }}
         return $this;
     }
 
-    /**
-    * @return string
-    */
-    abstract public function getRunType();
+    static public final function getPermissionName($name=null)
+    {
+        if($name) {
+            return self::SERVICE . $name;
+        }
+        // $action = get_class($this);
+        $action = static::class;
+        $permission = substr($action, (strrpos($action, '\\')) + 1);
+
+        return self::SERVICE . $permission;
+    }
 
     /**
     * @return boolean

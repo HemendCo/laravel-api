@@ -3,6 +3,7 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
 use App\Models\UsersAuthCodes;
 use Hemend\Library\Laravel\Sms;
 use Hemend\Library\Numbers;
@@ -11,9 +12,11 @@ use Propaganistas\LaravelPhone\PhoneNumber;
 
 class AuthSendCode extends {{ version }}
 {
-    public function getRunType()
+    use AclTraits\Auth;
+
+    static public function title(): string
     {
-        return parent::PUBLIC_FLAG;
+        return __('Verify Code');
     }
 
     public function __invoke()

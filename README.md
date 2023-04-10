@@ -14,7 +14,7 @@ Use shields for your packagist.org repository that shows how many times your pro
 ```
 - app/Models/User.php
 - database/migrations/2014_10_12_000000_create_users_table.php
-- database/migrations/2014_10_12_100000_create_password_resets_table.php
+- database/migrations/2014_10_12_100000_create_password_reset_tokens_table.php
 - database/seeders/DatabaseSeeder.php
 ```
 

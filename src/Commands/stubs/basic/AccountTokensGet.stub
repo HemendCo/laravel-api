@@ -1,0 +1,81 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
+use Illuminate\Support\Facades\Validator;
+use Laravel\Passport\Token;
+
+class AccountTokensGet extends {{ version }}
+{
+    use AclTraits\Account;
+
+    static public function title(): string
+    {
+        return __('Tokens');
+    }
+    
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'page_number' => 'bail|nullable|numeric|min:1',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PAGE_NUMBER_INVALID',
+                'status_message' => __('messages.The page number invalid')
+            ], 400);
+        }
+
+        $limit_min   = config('api.paginate.limit.min');
+        $limit_max   = config('api.paginate.limit.max');
+
+        $validator = Validator::make($input, [
+            'page_limit' => 'bail|nullable|numeric|between:'.$limit_min.','.$limit_max,
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PAGE_LIMIT_INVALID',
+                'status_message' => __('messages.The page limit invalid')
+            ], 400);
+        }
+
+        $page_number = $input['page_number'] ?? 1;
+        $page_limit = $input['page_limit'] ?? $limit_min;
+
+        $query = Token::query();
+        $query->where('user_id', $this->user()->id);
+        $query->where('revoked', '0');
+
+        $paginate = $query->paginate($page_limit, ['*'], 'page_number', $page_number);
+
+        $tokens = [];
+        foreach ($paginate->items() as $token) {
+            $tokens[] = [
+                'id' => $token->id,
+                'name' => $token->name,
+                'scopes' => $token->scopes,
+                // 'revoked' => $token->revoked,
+                'created_at' => $token->created_at,
+                'updated_at' => $token->updated_at,
+                'expires_at' => $token->expires_at,
+            ];
+        }
+
+        return response()->json([
+            'status_code' => 'OK',
+            'tokens' => $tokens,
+            'page' => [
+                'current' 	=> $paginate->currentPage(),
+                'last' 		=> $paginate->lastPage(),
+                'total' 	=> $paginate->total(),
+                'limit' 	=> $paginate->perPage(),
+            ]
+        ]);
+    }
+}

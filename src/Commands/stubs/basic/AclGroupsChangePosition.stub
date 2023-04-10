@@ -1,0 +1,77 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
+use App\Models\AclGroups;
+use Illuminate\Support\Facades\Validator;
+
+class AclGroupsChangePosition extends {{ version }}
+{
+    use AclTraits\AclGroups;
+
+    static public function title(): string
+    {
+        return __('Arrange group');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'from' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'FROM_GROUP_ID_INVALID',
+                'status_message' => __('messages.The from group id is invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'to' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'TO_GROUP_ID_INVALID',
+                'status_message' => __('messages.The to group id is invalid')
+            ], 400);
+        }
+
+        $from = AclGroups::where('guard_name', self::GUARD)
+            ->where('id', request()->input('from'))
+            ->first(['position']);
+
+        if(!$from) {
+            return response()->json([
+                'status_code' => 'FROM_GROUP_ID_INVALID',
+                'status_message' => __('messages.The from group id is invalid.')
+            ], 400);
+        }
+
+        $to = AclGroups::where('guard_name', self::GUARD)
+            ->where('id', request()->input('to'))
+            ->first(['position']);
+
+        if(!$to) {
+            return response()->json([
+                'status_code' => 'TO_GROUP_ID_INVALID',
+                'status_message' => __('messages.The to group id is invalid.')
+            ], 400);
+        }
+
+        AclGroups::updatePosition(
+            $from->position,
+            $to->position,
+            self::GUARD
+        );
+
+        return response()->json([
+            'status_code' => 'OK',
+        ]);
+    }
+}

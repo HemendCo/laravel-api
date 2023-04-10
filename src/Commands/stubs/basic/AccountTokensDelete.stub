@@ -3,11 +3,19 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Passport\Token;
 
-class AccountDeleteToken extends {{ version }}
+class AccountTokensDelete extends {{ version }}
 {
+    use AclTraits\Account;
+
+    static public function title(): string
+    {
+        return __('Token delete');
+    }
+
     public function __invoke()
     {
         $input = $this->getRequest()->all();

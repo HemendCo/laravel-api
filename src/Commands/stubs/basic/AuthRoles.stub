@@ -1,0 +1,28 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
+use App\Models\AclRoles as Roles;
+
+class AuthRoles extends {{ version }}
+{
+    use AclTraits\Auth;
+
+    static public function title(): string
+    {
+        return __('Signup roles');
+    }
+
+    public function __invoke()
+    {
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => Roles::select('id', 'name', 'title')
+                ->whereNotIn('id', [1, 2])
+                ->where('is_default', 1)
+                ->get()
+        ]);
+    }
+}

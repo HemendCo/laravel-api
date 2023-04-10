@@ -4,11 +4,12 @@ namespace {{ namespace }};
 
 use {{ namespace }};
 
-class {{ class }} extends {{ service }}
+abstract class {{ class }} extends {{ service }}
 {
     const VERSION = '{{ version }}';
 
     protected $token = null;
+    protected $has_access = null;
 
     /**
     * @return string $version
@@ -19,26 +20,43 @@ class {{ class }} extends {{ service }}
     }
 
     /**
-    * @return string flag
-    */
-    public function getRunType()
-    {
-        return parent::PRIVATE_FLAG;
-    }
-
-    /**
     * @return boolean
     */
     protected final function authorization()
     {
         try {
-            if($this->user() && $this->user()->tokenCan(parent::SERVICE) && $this->user()->status == 1) {
-                $this->token = $this->getRequest()->bearerToken();
-                return true;
+            $this->has_access = false;
+
+            if($this->getRequest()->bearerToken()) {
+                $user = $this->user();
+                if($user &&
+                    $user->tokenCan(parent::SERVICE) &&
+                    $user->not_deleted &&
+                    !$user->blocked &&
+                    !$user->suspended &&
+                    $user->activated &&
+                    $this->user()->can(static::getPermissionName())
+                ) {
+                    $this->token = $this->getRequest()->bearerToken();
+                    return ($this->has_access = true);
+                }
+            } else {
+                $role = \App\Models\AclRoles::findById(1); // Public Role
+                if($role->hasPermissionTo(static::getPermissionName())) {
+                    return ($this->has_access = true);
+                }
             }
         } catch (\Exception $e) {}
 
         return false;
+    }
+
+    /**
+    * @return boolean
+    */
+    public final function hasAccess()
+    {
+        return $this->has_access;
     }
 
     /**
@@ -54,7 +72,7 @@ class {{ class }} extends {{ service }}
     */
     public final function hasIdentity()
     {
-        return $this->token && !!$this->user();
+        return !!$this->token && !!$this->user();
     }
 
     /**
@@ -66,4 +84,51 @@ class {{ class }} extends {{ service }}
     {
         return $this->auth()->user() ?? null;
     }
+
+    /**
+     * @return object
+     */
+    abstract static public function group(): object;
+
+    static public function permissions(): array
+    {
+        return [
+            'allow' => [
+            ],
+            'deny' => [
+            ],
+        ];
+    }
+
+    static public final function publicRolePermissions(): array
+    {
+        return [
+            'allow' => [
+                {{ class }}\AuthHandshake::class,
+            ],
+            'deny' => [
+                {{ class }}\AccountSignOut::class,
+            ],
+        ];
+    }
+
+    static public final function allRolesPermissions(): array
+    {
+        return [
+            'allow' => [
+                {{ class }}\AuthHandshake::class,
+                {{ class }}\AccountSignOut::class,
+            ],
+            'deny' => [
+                {{ class }}\AuthSignIn::class,
+                {{ class }}\AuthSignUp::class,
+                {{ class }}\AuthRoles::class
+            ],
+        ];
+    }
+
+    /**
+     * @return object
+     */
+    abstract static public function title(): string;
 }

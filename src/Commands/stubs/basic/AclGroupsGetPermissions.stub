@@ -1,0 +1,55 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
+use App\Models\AclGroups;
+use Illuminate\Support\Facades\Validator;
+
+class AclGroupsGetPermissions extends {{ version }}
+{
+    use AclTraits\AclGroups;
+
+    static public function title(): string
+    {
+        return __('Group permissions');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'id' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'GROUP_ID_INVALID',
+                'status_message' => __('messages.The group id is invalid')
+            ], 400);
+        }
+
+        $group = AclGroups::with('permissions')->where('id', request()->input('id'))->first();
+
+        if (!$group) {
+            return response()->json([
+                'status_code' => 'GROUP_ID_INVALID',
+                'status_message' => __('messages.The group id is invalid')
+            ], 409);
+        }
+
+        $perms = $group->permissions;
+        $group = $group->toArray();
+        unset($group['permissions']);
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => [
+                'group' => $group,
+                'permissions' => $perms
+            ]
+        ]);
+    }
+}

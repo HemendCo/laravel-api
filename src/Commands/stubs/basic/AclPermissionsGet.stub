@@ -1,0 +1,36 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
+use App\Models\AclPermissions as Permissions;
+use Hemend\Api\Libraries\Permissions as LibPermissions;
+
+class AclPermissionsGet extends {{ version }}
+{
+    use AclTraits\AclPermissions;
+
+    static public function title(): string
+    {
+        return __('Permissions');
+    }
+
+    public function __invoke()
+    {
+        $perms = LibPermissions::getPermissionsFromApi(
+            self::SERVICE,
+            {{ version }}::class,
+            Permissions::with('group')->get()
+        );
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => [
+                'permissions' => $perms,
+                'public_role_permissions' => LibPermissions::getRolePermissionsFromApi(self::SERVICE, {{ version }}::class, 1),
+                'all_roles_permissions' => LibPermissions::getRolePermissionsFromApi(self::SERVICE, {{ version }}::class),
+            ]
+        ]);
+    }
+}

@@ -1,0 +1,58 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
+use App\Models\AclRoles as Roles;
+use Illuminate\Support\Facades\Validator;
+
+class AclRolesActive extends {{ version }}
+{
+    use AclTraits\AclRoles;
+
+    static public function title(): string
+    {
+        return __('Role activation');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'id' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'ROLE_ID_INVALID',
+                'status_message' => __('messages.The role id is invalid')
+            ], 400);
+        }
+
+        $role = Roles::where('id', request()->input('id'))->first();
+
+        if(!$role) {
+            return response()->json([
+                'status_code' => 'ROLE_ID_INVALID',
+                'status_message' => __('messages.The role id is invalid')
+            ], 400);
+        }
+
+        if($role->activated == '1') {
+            return response()->json([
+                'status_code' => 'ROLE_ALREADY_ACTIVATED',
+                'status_message' => __('messages.The role has already been activated')
+            ], 409);
+        }
+
+        $role->update([
+            'activated' => '1',
+        ]);
+
+        return response()->json([
+            'status_code' => 'OK',
+        ]);
+    }
+}

@@ -1,0 +1,66 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
+use App\Models\AclRoles as Roles;
+use Illuminate\Support\Facades\Validator;
+
+class AclRolesInactive extends {{ version }}
+{
+    use AclTraits\AclRoles;
+
+    static public function title(): string
+    {
+        return __('Role inactivation');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'id' => 'bail|required|numeric|min:1|not_in:1,2'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'ROLE_ID_INVALID',
+                'status_message' => __('messages.The role id is invalid')
+            ], 400);
+        }
+
+        $role = Roles::where('id', request()->input('id'))->whereNotIn('id', [1, 2])->first();
+
+        if(!$role) {
+            return response()->json([
+                'status_code' => 'ROLE_ID_INVALID',
+                'status_message' => __('messages.The role id is invalid')
+            ], 400);
+        }
+
+        if(!$role->activated) {
+            return response()->json([
+                'status_code' => 'ROLE_ALREADY_INACTIVATED',
+                'status_message' => __('messages.The role has already been inactivated')
+            ], 409);
+        }
+
+        if($role->is_default && !Roles::where('id', '<>', $role->id)->where('is_default', 1)->where('activated', 1)->exists()) {
+            return response()->json([
+                'status_code' => 'DEFAULT_ROLE_INACTIVE',
+                'status_message' => __('messages.You cannot inactive or delete the default role')
+            ], 409);
+        }
+
+        $role->update([
+            'activated' => null,
+            'is_default' => null,
+        ]);
+
+        return response()->json([
+            'status_code' => 'OK',
+        ]);
+    }
+}

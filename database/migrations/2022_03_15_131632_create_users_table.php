@@ -15,12 +15,15 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->boolean('status')->default(0)->comment('-1=Deleted 0=Inactive 1=Active 2=Suspend 3=Block');
+            $table->boolean('not_deleted')->default('1')->unsigned()->nullable()->comment('NULL=Deleted 1=Not Deleted');
+            $table->boolean('blocked')->unsigned()->nullable()->comment('NULL=UnBlocked 1=Blocked');
+            $table->boolean('suspended')->unsigned()->nullable()->comment('NULL=UnSuspended 1=Suspended');
+            $table->boolean('activated')->unsigned()->nullable()->comment('NULL=Inactivated 1=Activated');
             $table->string('first_name', 70)->nullable();
             $table->string('last_name', 70)->nullable();
             $table->enum('gender', ['M', 'F'])->nullable()->comment('M=Male F=Female');
             $table->string('mobile', 11)->unique('mobile');
-            $table->unsignedBigInteger('created_by')->default(0)->index('created_by');
+            $table->unsignedBigInteger('created_by')->nullable()->index('created_by');
             $table->timestamps();
         });
     }

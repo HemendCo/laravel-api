@@ -1,0 +1,38 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
+use Hemend\Api\Libraries\Permissions as LibPermissions;
+
+class AccountPermissions extends {{ version }}
+{
+    use AclTraits\Account;
+
+    static public function title(): string
+    {
+        return __('Permissions');
+    }
+
+    public function __invoke()
+    {
+        if($this->user()->hasRole('super-admin')) {
+            $permissions = ['*'];
+        } else {
+            $perms = LibPermissions::getPermissionsFromApi(
+                self::SERVICE,
+                {{ version }}::class,
+                $this->user()->getAllPermissions()
+            );
+
+            $permsNotPublic = LibPermissions::getRolePermissionsFromApi(self::SERVICE, {{ version }}::class);
+            $permissions = LibPermissions::merge($perms, $permsNotPublic);
+        }
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => $permissions,
+        ]);
+    }
+}

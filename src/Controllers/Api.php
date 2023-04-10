@@ -57,13 +57,11 @@ class Api extends Controller
         */
 
         if (method_exists($api, '__invoke')) {
-            if ($api->getRunType() == $methodClass::PRIVATE_FLAG || $api->getToken()) {
-                if(!$api->hasIdentity()) {
-                    return response()->json([
-                        'status_code' => 'UNAUTHORIZED',
-                        'status_message' => __('messages.Authentication error occurred'),
-                    ], 401);
-                }
+            if(!$api->hasAccess()) {
+                return response()->json([
+                    'status_code' => 'UNAUTHORIZED',
+                    'status_message' => __('messages.Authentication error occurred'),
+                ], 401);
             }
 
             try {

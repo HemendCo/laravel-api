@@ -3,9 +3,17 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
 
-class AuthSignOut extends {{ version }}
+class AccountSignOut extends {{ version }}
 {
+    use AclTraits\Account;
+
+    static public function title(): string
+    {
+        return __('Logout');
+    }
+    
     public function __invoke()
     {
         $this->user()->token()->revoke();

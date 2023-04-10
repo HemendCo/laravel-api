@@ -3,21 +3,36 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
+use App\Models\AclRoles as Roles;
 use App\Models\Users;
 use App\Models\UsersAuthCodes;
 use Hemend\Api\Traits\PassportToken;
 use Hemend\Library\Numbers;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
 class AuthSignUp extends {{ version }}
 {
     use PassportToken;
+    use AclTraits\Auth;
 
-    public function getRunType()
+    static public function title(): string
     {
-        return parent::PUBLIC_FLAG;
+        return __('Signup');
+    }
+
+    static public function permissions(): array
+    {
+        return [
+            'allow' => [
+                AuthRoles::class,
+            ],
+            'deny' => [
+            ],
+        ];
     }
 
     public function __invoke()
@@ -30,6 +45,17 @@ class AuthSignUp extends {{ version }}
         }
 
         $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'role_id' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'ROLE_ID_INVALID',
+                'status_message' => __('messages.The role id is invalid')
+            ], 400);
+        }
 
         foreach (['mobile', 'hash', 'code'] as $key) {
             if(isset($input[$key]) && is_scalar($input[$key])) {
@@ -98,6 +124,23 @@ class AuthSignUp extends {{ version }}
             ], 401);
         }
 
+        $validator = Validator::make($input, [
+            'role_id' => [
+                Rule::exists(app(Roles::class)->getTable(), 'id')->where(function($query) {
+                    $query->whereNotIn('id', [1, 2]);
+                    $query->where('activated', 1);
+                    $query->where('is_default', 1);
+                })
+            ]
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'ROLE_ID_INVALID',
+                'status_message' => __('messages.The role id is invalid')
+            ], 400);
+        }
+
         $user = Users::where('mobile', $mobile)->where('status', '>=', '0')->first();
 
         if($user) {
@@ -111,11 +154,17 @@ class AuthSignUp extends {{ version }}
             ->update([
                 'used_at' => date('Y-m-d H:i:s'),
             ]);
+        
+        $role = Roles::select('name')
+            ->where('id', request()->input('role_id'))
+            ->first();
 
         $user = Users::create([
             'status' => '1',
             'mobile' => $mobile,
         ]);
+        
+        $user->assignRole($role->name);
 
         $token = $this->getBearerTokenByUser($user, [parent::SERVICE]);
         $expiration = Carbon::now()->addSeconds($token['expires_in']);

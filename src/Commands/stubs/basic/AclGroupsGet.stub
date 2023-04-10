@@ -3,11 +3,19 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
+use App\Models\AclGroups;
 use Illuminate\Support\Facades\Validator;
-use Laravel\Passport\Token;
 
-class AccountGetTokens extends {{ version }}
+class AclGroupsGet extends {{ version }}
 {
+    use AclTraits\AclGroups;
+
+    static public function title(): string
+    {
+        return __('Groups');
+    }
+
     public function __invoke()
     {
         $input = $this->getRequest()->all();
@@ -37,36 +45,24 @@ class AccountGetTokens extends {{ version }}
             ], 400);
         }
 
-        $page_number = $input['page_number'] ?? 1;
-        $page_limit = $input['page_limit'] ?? $limit_min;
+        $page_number = request()->input('page_number', 1);
+        $page_limit = request()->input('page_limit', $limit_min);
 
-        $query = Token::query();
-        $query->where('user_id', $this->user()->id);
-        $query->where('revoked', '0');
+        $query = AclGroups::query();
+        $query->orderBy('id', 'asc');
 
         $paginate = $query->paginate($page_limit, ['*'], 'page_number', $page_number);
 
-        $tokens = [];
-        foreach ($paginate->items() as $token) {
-            $tokens[] = [
-                'id' => $token->id,
-                'name' => $token->name,
-                'scopes' => $token->scopes,
-                // 'revoked' => $token->revoked,
-                'created_at' => $token->created_at,
-                'updated_at' => $token->updated_at,
-                'expires_at' => $token->expires_at,
-            ];
-        }
-
         return response()->json([
             'status_code' => 'OK',
-            'tokens' => $tokens,
-            'page' => [
-                'current' 	=> $paginate->currentPage(),
-                'last' 		=> $paginate->lastPage(),
-                'total' 	=> $paginate->total(),
-                'limit' 	=> $paginate->perPage(),
+            'data' => [
+                'groups' => $paginate->items(),
+                'page' => [
+                    'current' 	=> $paginate->currentPage(),
+                    'last' 		=> $paginate->lastPage(),
+                    'total' 	=> $paginate->total(),
+                    'limit' 	=> $paginate->perPage(),
+                ]
             ]
         ]);
     }

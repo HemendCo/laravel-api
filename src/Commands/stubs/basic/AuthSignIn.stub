@@ -3,6 +3,7 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
+use App\Http\Controllers\Api\Client\AclTraits;
 use App\Models\Users;
 use App\Models\UsersAuthCodes;
 use Hemend\Api\Traits\PassportToken;
@@ -14,10 +15,11 @@ use Propaganistas\LaravelPhone\PhoneNumber;
 class AuthSignIn extends {{ version }}
 {
     use PassportToken;
+    use AclTraits\Auth;
 
-    public function getRunType()
+    static public function title(): string
     {
-        return parent::PUBLIC_FLAG;
+        return __('Login');
     }
 
     public function __invoke()
@@ -100,7 +102,7 @@ class AuthSignIn extends {{ version }}
             ], 401);
         }
 
-        if($user->status != 1) {
+        if($user->blocked || $user->suspended || !$user->activated) {
             return response()->json([
                 'status_code' => 'ACCESS_DENIED',
                 'status_message' => __('messages.You do not have access to sign in.')
