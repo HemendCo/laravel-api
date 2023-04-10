@@ -100,7 +100,7 @@ Route::group(['namespace' => 'Hemend\Api\Controllers\\'], function ($router) {
 
 ## Api commands
 #### Keyword meanings
-|Keywword        |Meaning                        |Example                                            |
+|Keyword        |Meaning                        |Example                                            |
 |----------------|-------------------------------|---------------------------------------------------|
 |[Name]          |Service name                   |`Admins` or `Users` ...                            |
 |[Version]       |Version of service             |`1` or `1.0` ...                                   |
