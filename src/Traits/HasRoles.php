@@ -42,21 +42,25 @@ trait HasRoles
      */
     public function roles(): BelongsToMany
     {
+        $teams = config('permission.teams', false);
+        $teamsKey = config('permission.column_names.team_foreign_key', 'team_id');
+        $pivotRole = config('permission.column_names.role_pivot_key') ?: 'role_id';
+
         $relation = $this->morphToMany(
             config('permission.models.role'),
             'model',
             config('permission.table_names.model_has_roles'),
             config('permission.column_names.model_morph_key'),
-            PermissionRegistrar::$pivotRole
+            $pivotRole
         );
 
-        if (! PermissionRegistrar::$teams) {
+        if (! $teams) {
             return $relation;
         }
 
-        return $relation->wherePivot(PermissionRegistrar::$teamsKey, getPermissionsTeamId())
-            ->where(function ($q) {
-                $teamField = config('permission.table_names.roles').'.'.PermissionRegistrar::$teamsKey;
+        return $relation->wherePivot($teamsKey, getPermissionsTeamId())
+            ->where(function ($q) use ($teamsKey) {
+                $teamField = config('permission.table_names.roles').'.'.$teamsKey;
                 $q->whereNull($teamField)->orWhere($teamField, getPermissionsTeamId());
             });
     }
@@ -102,9 +106,12 @@ trait HasRoles
      */
     public function assignRole(...$roles)
     {
+        $teams = config('permission.teams', false);
+        $teamsKey = config('permission.column_names.team_foreign_key', 'team_id');
+
         $roles = collect($roles)
             ->flatten()
-            ->reduce(function ($array, $role) {
+            ->reduce(function ($array, $role) use($teams, $teamsKey) {
                 if (empty($role)) {
                     return $array;
                 }
@@ -116,8 +123,8 @@ trait HasRoles
 
                 $this->ensureModelSharesGuard($role);
 
-                $array[$role->getKey()] = PermissionRegistrar::$teams && ! is_a($this, Permission::class) ?
-                    [PermissionRegistrar::$teamsKey => getPermissionsTeamId()] : [];
+                $array[$role->getKey()] = $teams && ! is_a($this, Permission::class) ?
+                    [$teamsKey => getPermissionsTeamId()] : [];
 
                 return $array;
             }, []);

@@ -45,19 +45,23 @@ trait HasPermissions
      */
     public function permissions(): BelongsToMany
     {
+        $teams = config('permission.teams', false);
+        $teamsKey = config('permission.column_names.team_foreign_key', 'team_id');
+        $pivotPermission = config('permission.column_names.permission_pivot_key') ?: 'permission_id';
+
         $relation = $this->morphToMany(
             config('permission.models.permission'),
             'model',
             config('permission.table_names.model_has_permissions'),
             config('permission.column_names.model_morph_key'),
-            PermissionRegistrar::$pivotPermission
+            $pivotPermission
         );
 
-        if (! PermissionRegistrar::$teams) {
+        if (! $teams) {
             return $relation;
         }
 
-        return $relation->wherePivot(PermissionRegistrar::$teamsKey, getPermissionsTeamId());
+        return $relation->wherePivot($teamsKey, getPermissionsTeamId());
     }
 
     /**
@@ -323,9 +327,12 @@ trait HasPermissions
      */
     public function givePermissionTo(...$permissions)
     {
+        $teams = config('permission.teams', false);
+        $teamsKey = config('permission.column_names.team_foreign_key', 'team_id');
+
         $permissions = collect($permissions)
             ->flatten()
-            ->reduce(function ($array, $permission) {
+            ->reduce(function ($array, $permission) use($teams, $teamsKey) {
                 if (empty($permission)) {
                     return $array;
                 }
@@ -337,8 +344,8 @@ trait HasPermissions
 
                 $this->ensureModelSharesGuard($permission);
 
-                $array[$permission->getKey()] = PermissionRegistrar::$teams && ! is_a($this, Role::class) ?
-                    [PermissionRegistrar::$teamsKey => getPermissionsTeamId()] : [];
+                $array[$permission->getKey()] = $teams && ! is_a($this, Role::class) ?
+                    [$teamsKey => getPermissionsTeamId()] : [];
 
                 return $array;
             }, []);
