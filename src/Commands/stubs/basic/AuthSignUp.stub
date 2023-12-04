@@ -160,7 +160,7 @@ class AuthSignUp extends {{ version }}
             ->first();
 
         $user = Users::create([
-            'status' => '1',
+            'activated' => '1',
             'mobile' => $mobile,
         ]);
         
