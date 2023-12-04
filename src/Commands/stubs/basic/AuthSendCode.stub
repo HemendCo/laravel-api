@@ -52,7 +52,16 @@ class AuthSendCode extends {{ version }}
             ], 400);
         }
 
-        $mobile = PhoneNumber::make($input['mobile_number'], 'IR')->formatForMobileDialingInCountry('IR');
+        $phone = new PhoneNumber($input['mobile_number'], ['IR']);
+
+        if (!$phone->isValid()) {
+            return response()->json([
+                'status_code' => 'MOBILE_NUMBER_INVALID',
+                'status_message' => __('messages.The mobile number invalid')
+            ], 400);
+        }
+
+        $mobile = $phone->formatForMobileDialingInCountry('IR');
 
         $last_auth_code = UsersAuthCodes::where('mobile', $mobile)
             ->where('service', parent::SERVICE)

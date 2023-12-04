@@ -99,6 +99,7 @@ class UsersSeeder extends Seeder
             "AuthRoles",
 
             // All Roles (without public)
+            "AccountChangeMobileNumber",
             "AccountPermissions",
             "AccountRoles",
             "AccountSignOut",
@@ -140,6 +141,7 @@ class UsersSeeder extends Seeder
             "AuthRoles",
 
             // All Roles (without public)
+            "AccountChangeMobileNumber",
             "AccountPermissions",
             "AccountRoles",
             "AccountSignOut",
