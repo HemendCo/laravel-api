@@ -127,7 +127,7 @@ php artisan make:api-maker [Service] [Version] [Package] [Endpoint] --flag=[Flag
 
 #### Create a specific endpoint (You will get an error if there is no service and version)
 ```php
-php artisan make:api-endpoint [Service] [Version] [Package] [Method] --flag=[Flag]
+php artisan make:api-endpoint [Service] [Version] [Package] [Endpoint] --flag=[Flag]
 ```
 
 #### Create a service:
