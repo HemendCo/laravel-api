@@ -22,9 +22,11 @@ class CreateUsersTable extends Migration
             $table->string('first_name', 70)->nullable();
             $table->string('last_name', 70)->nullable();
             $table->enum('gender', ['M', 'F'])->nullable()->comment('M=Male F=Female');
-            $table->string('mobile', 11)->unique('mobile');
+            $table->string('mobile', 11)->nullable()->index('mobile');
             $table->unsignedBigInteger('created_by')->nullable()->index('created_by');
             $table->timestamps();
+
+            $table->unique(['mobile', 'not_deleted'], 'mobile_not_deleted_unique');
         });
     }
 
