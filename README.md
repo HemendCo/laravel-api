@@ -22,6 +22,7 @@ In this section, you need to copy the required files from the package to your lo
 If you execute the following command, you do not need to use commands after that:
 ```php
 php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=api
+php artisan vendor:publish --provider="Hemend\Library\Laravel\Providers\LibraryServiceProvider" --tag=config
 ```
 <details><summary>Copy config</summary>
 
