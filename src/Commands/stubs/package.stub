@@ -1,0 +1,16 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+
+class {{ class }} extends {{ version }}
+{
+    static public function package(): object
+    {
+        return (object) [
+            'name' => '{{ package }}',
+            'title' => __('hemend.{{ package }}')
+        ];
+    }
+}

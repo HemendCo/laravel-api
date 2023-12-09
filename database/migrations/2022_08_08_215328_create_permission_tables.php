@@ -28,14 +28,15 @@ class CreatePermissionTables extends Migration
 
     Schema::create($tableNames['permissions'], function (Blueprint $table) {
       $table->bigIncrements('id'); // permission id
-      $table->unsignedSmallInteger('group_id')->index('group_id');
+      $table->unsignedSmallInteger('service_id')->index('service_id');
+      $table->unsignedSmallInteger('package_id')->index('package_id');
       $table->string('name');       // For MySQL 8.0 use string('name', 125);
       $table->longText('title');
       $table->string('guard_name'); // For MySQL 8.0 use string('guard_name', 125);
       $table->unsignedSmallInteger('position');
       $table->timestamps();
 
-      $table->unique(['name', 'guard_name']);
+      $table->unique(['service_id', 'package_id', 'name', 'guard_name']);
     });
 
     Schema::create($tableNames['roles'], function (Blueprint $table) use ($teams, $columnNames) {

@@ -1,0 +1,24 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use Hemend\Api\Implements\Endpoint;
+
+class Roles extends Account implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.Roles');
+    }
+
+    public function __invoke()
+    {
+        $roles = $this->user()->getRoleNames();
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => $roles,
+        ]);
+    }
+}

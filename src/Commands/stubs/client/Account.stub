@@ -1,0 +1,16 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+
+class Account extends {{ version }}
+{
+    static public function package(): object
+    {
+        return (object) [
+            'name' => 'Account',
+            'title' => __('hemend.Account')
+        ];
+    }
+}

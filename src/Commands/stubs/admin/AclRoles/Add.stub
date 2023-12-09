@@ -1,0 +1,62 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Models\AclRoles as Roles;
+use Hemend\Api\Implements\Endpoint;
+use Illuminate\Support\Facades\Validator;
+
+class Add extends AclRoles implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.Role add');
+    }
+
+    public function __invoke()
+    {
+        $request = $this->getRequest();
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'title' => 'bail|required|string|min:1|max:150',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'ROLE_TITLE_INVALID',
+                'status_message' => __('hemend.The role title invalid')
+            ], 400);
+        }
+
+//        $validator = Validator::make($input, [
+//            'name' => 'bail|required|string|min:1|max:150|regex:/^[a-z][a-z0-9]*(?:[-][a-z0-9]+)*$/'
+//        ]);
+//
+//        if($validator->fails()) {
+//            return response()->json([
+//                'status_code' => 'ROLE_NAME_INVALID',
+//                'status_message' => __('hemend.The role name invalid')
+//            ], 400);
+//        }
+//
+//        $role = Roles::where('name', $request->input('name'))->first();
+//
+//        if($role) {
+//            return response()->json([
+//                'status_code' => 'ROLE_NAME_USED',
+//                'status_message' => __('hemend.This name has already been registered, please enter another name.')
+//            ], 409);
+//        }
+//
+//        $role = Roles::create(['name' => $request->input('name'), 'title' => $request->input('title'), 'activated' => '1']);
+
+        $role = Roles::create(['name' => 'role-' . (Roles::count() + 1), 'title' => $request->input('title'), 'activated' => '1']);
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => $role
+        ]);
+    }
+}

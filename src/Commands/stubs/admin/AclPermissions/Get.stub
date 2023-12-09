@@ -1,0 +1,58 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Models\AclPermissions as Permissions;
+use Hemend\Api\Implements\Endpoint;
+use Illuminate\Support\Facades\Validator;
+
+class Get extends AclPermissions implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.Permissions');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'service_id' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'SERVICE_ID_INVALID',
+                'status_message' => __('hemend.The service id is invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'package_id' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PACKAGE_ID_INVALID',
+                'status_message' => __('hemend.The package id is invalid')
+            ], 400);
+        }
+
+        $query = Permissions::query()->with('package');
+
+        if(request()->input('service_id')) {
+            $query->where('service_id', request()->input('service_id'));
+        }
+
+        if(request()->input('package_id')) {
+            $query->where('package_id', request()->input('service_id'));
+        }
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => $query->get()
+        ]);
+    }
+}

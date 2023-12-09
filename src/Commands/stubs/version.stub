@@ -88,47 +88,5 @@ abstract class {{ class }} extends {{ service }}
     /**
      * @return object
      */
-    abstract static public function group(): object;
-
-    static public function permissions(): array
-    {
-        return [
-            'allow' => [
-            ],
-            'deny' => [
-            ],
-        ];
-    }
-
-    static public final function publicRolePermissions(): array
-    {
-        return [
-            'allow' => [
-                {{ class }}\AuthHandshake::class,
-            ],
-            'deny' => [
-                {{ class }}\AccountSignOut::class,
-            ],
-        ];
-    }
-
-    static public final function allRolesPermissions(): array
-    {
-        return [
-            'allow' => [
-                {{ class }}\AuthHandshake::class,
-                {{ class }}\AccountSignOut::class,
-            ],
-            'deny' => [
-                {{ class }}\AuthSignIn::class,
-                {{ class }}\AuthSignUp::class,
-                {{ class }}\AuthRoles::class
-            ],
-        ];
-    }
-
-    /**
-     * @return object
-     */
-    abstract static public function title(): string;
+    abstract static public function package(): object;
 }

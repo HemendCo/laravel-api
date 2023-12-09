@@ -59,6 +59,11 @@ $kernel = $app->make(Kernel::class);
 2. Edit `config/auth.php`:
 ```php
     ...
+    'defaults' => [
+        'guard' => 'api',
+        'passwords' => 'users',
+    ],
+    ...
     'guards' => [
     ...
         'api' => [
@@ -81,19 +86,20 @@ $kernel = $app->make(Kernel::class);
 3. Empty the contents of the `routes/api.php` file and paste the following codes:
 ```php
 function callApiRoute($route_name) {
-    Route::any('/{service}/{version}/{method}', 'Api')->where([
-        'service' => '[a-zA-Z]+',
-        'version' => '(\d+(?:\.\d+){0,2})',
-        'method' => '([a-z][a-zA-Z0-9]+(\.?[a-z][a-zA-Z0-9]+)?)'
+    Route::any('/{service}/{version}/{package}/{endpoint}', 'Api')->where([
+        'service' => '[a-z][a-zA-Z0-9]+',
+        'version' => '[1-9][0-9]{0,1}',
+        'package' => '[a-z][a-zA-Z0-9]+',
+        'endpoint' => '[a-z][a-zA-Z0-9]+'
     ])->name($route_name);
 }
 
 Route::group(['namespace' => 'Hemend\Api\Controllers\\'], function ($router) {
     callApiRoute('Api');
 
-    Route::group(['prefix' => 'demo'], function ($router) {
-        callApiRoute('DemoApi');
-    });
+//    Route::group(['prefix' => 'demo'], function ($router) {
+//        callApiRoute('DemoApi');
+//    });
 });
 ```
 
@@ -101,46 +107,43 @@ Route::group(['namespace' => 'Hemend\Api\Controllers\\'], function ($router) {
 #### Keyword meanings
 |Keyword        |Meaning                        |Example                                            |
 |----------------|-------------------------------|---------------------------------------------------|
-|[Name]          |Service name                   |`Admins` or `Users` ...                            |
-|[Version]       |Version of service             |`1` or `1.0` ...                                   |
-|[Method]        |Method from the server version |`AuthSignIn` or `AccountGetTokens` ...             |
-|[SrcVersion]    |Source version of service      |`1` or `1.0` ...                                   |
-|[DstVersion]    |Destination version of service |`2` or `2.0` ...                                   |
-|[Flag]          |Set the endpoint type          |`private` or `public`                              |
+|[Service]       |Service name                                |`Admin` or `Client` ...                            |
+|[Version]       |Version of service                          |`1` or `2` or ... or `99`                                   |
+|[Package]       |Package from the server version             |`Auth` or `Account` ...                          |
+|[Endpoint]      |Endpoint from the server version            |`SignIn` or `TokensGet` ...                     |
+|[Mode]?         |Set the endpoint mode default(`client`)     |`admin` or `client`                              |
+|[Guard]?        |Set the service guard default(`api`)        |`admin` or `client`                              |
+|[Flag]?         |Set the permission flag default(`private`)  |`private` or `public` or `private_only` or `public_only`                              |
 
 #### Create a service with default endpoints:
 ```php
-php artisan make:api-basic [Name] [Version]
+php artisan make:api-basic [Service] [Version] --mode=[Mode] --guard=[Guard]
 ```
 
 #### Create a specific endpoint (It is created if there is no service and version)
 ```php
-php artisan make:api-maker [Name] [Version] [Method] --flag=[Flag]
+php artisan make:api-maker [Service] [Version] [Package] [Endpoint] --flag=[Flag]
 ```
 
 #### Create a specific endpoint (You will get an error if there is no service and version)
 ```php
-php artisan make:api-method [Name] [Version] [Method] --flag=[Flag]
+php artisan make:api-endpoint [Service] [Version] [Package] [Method] --flag=[Flag]
 ```
 
 #### Create a service:
 ```php
-php artisan make:api-service [Name]
+php artisan make:api-service [Service]
 ```
 
 #### Create a version for service:
 ```php
-php artisan make:api-version [Name] [Version]
-```
-
-#### Copy endpoints from an existing version(source) to a new version(destination):
-```php
-php artisan make:api-version-copy [Name] [SrcVersion] [DstVersion]
+php artisan make:api-version [Service] [Version]
 ```
 
 ## Other settings
-1. After installing the package and doing the above, you need to migrate to the database:
+1. After installing the package and doing the above, you need to publish and migrate to the database:
 ```shell
+php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=api
 php artisan migrate
 php artisan passport:install
 php artisan db:seed --class=UsersSeeder

@@ -1,0 +1,64 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Models\AclPermissions as Permissions;
+use Hemend\Api\Implements\Endpoint;
+use Illuminate\Support\Facades\Validator;
+
+class Update extends AclPermissions implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.Permission update');
+    }
+
+    public function __invoke()
+    {
+        $request = $this->getRequest();
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'id' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PERMISSION_ID_INVALID',
+                'status_message' => __('hemend.The permission id is invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'title' => 'bail|required|string|min:1|max:150',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PERMISSION_TITLE_INVALID',
+                'status_message' => __('hemend.The permission title invalid')
+            ], 400);
+        }
+
+        $permission = Permissions::query()
+            ->where('id', request()->input('id'))
+            ->first();
+
+        if (!$permission) {
+            return response()->json([
+                'status_code' => 'PERMISSION_ID_INVALID',
+                'status_message' => __('hemend.The permission id is invalid')
+            ], 400);
+        }
+
+        $permission->update([
+            'title' => $request->input('title')
+        ]);
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => $permission,
+        ]);
+    }
+}

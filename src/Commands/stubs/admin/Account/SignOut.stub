@@ -1,0 +1,38 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use Hemend\Api\Implements\Endpoint;
+
+class SignOut extends Account implements Endpoint
+{
+    static public function defaultPermissionFlag()
+    {
+        return self::PERMISSION_FLAG_PRIVATE_ONLY;
+    }
+
+    static public function title(): string
+    {
+        return __('hemend.Logout');
+    }
+    
+    public function __invoke()
+    {
+        $this->user()->token()->revoke();
+
+        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
+        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($this->user()->token()->id);
+
+        if ($this->getRequest()->input('everywhere') == '1') {
+            $this->user()->tokens->each(function ($token, $key) use ($refreshTokenRepository) {
+                $token->revoke();
+                $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($token->id);
+            });
+        }
+
+        return response()->json([
+            'status_code' => 'OK',
+        ]);
+    }
+}

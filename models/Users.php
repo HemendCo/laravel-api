@@ -10,7 +10,7 @@ use Laravel\Passport\HasApiTokens;
 
 class Users extends Authenticatable
 {
-    use HasRoles, HasApiTokens, HasFactory, Notifiable;
+  use HasRoles, HasApiTokens, HasFactory, Notifiable;
 
-    protected $guarded = [];
+  protected $guarded = [];
 }

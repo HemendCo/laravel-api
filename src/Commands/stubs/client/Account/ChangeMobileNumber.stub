@@ -1,0 +1,147 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Models\Users;
+use App\Models\UsersAuthCodes;
+use Hemend\Api\Implements\Endpoint;
+use Hemend\Api\Traits\PassportToken;
+use Hemend\Library\Numbers;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Propaganistas\LaravelPhone\PhoneNumber;
+
+class ChangeMobileNumber extends Account implements Endpoint
+{
+    use PassportToken;
+
+    static public function title(): string
+    {
+        return __('hemend.Change mobile number');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        foreach (['mobile', 'hash', 'code'] as $key) {
+            if(isset($input[$key]) && is_scalar($input[$key])) {
+                $input[$key] = Numbers::persianToLatin($input[$key]);
+            }
+        }
+
+        if(isset($input['mobile'])) {
+            $input['mobile_number'] = $input['mobile'];
+            unset($input['mobile']);
+        }
+
+        $validator = Validator::make($input, [
+            'mobile_number' => 'bail|required|numeric|min:11|phone:IR,mobile',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'MOBILE_NUMBER_INVALID',
+                'status_message' => __('hemend.The mobile number invalid')
+            ], 400);
+        }
+
+        $phone = new PhoneNumber($input['mobile_number'], ['IR']);
+
+        if (!$phone->isValid()) {
+            return response()->json([
+                'status_code' => 'MOBILE_NUMBER_INVALID',
+                'status_message' => __('hemend.The mobile number invalid')
+            ], 400);
+        }
+
+        $mobile = $phone->formatForMobileDialingInCountry('IR');
+
+        $validator = Validator::make($input, [
+            'hash' => 'bail|required|string|min:10|max:10',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'HASH_INVALID',
+                'status_message' => __('hemend.The hash invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'code' => 'bail|required|digits:4'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'CODE_INVALID',
+                'status_message' => __('hemend.The validation code invalid')
+            ], 400);
+        }
+
+        $last_auth_code = UsersAuthCodes::where('mobile', $mobile)
+            ->where('service', parent::SERVICE)
+            ->where('code', $input['code'])
+            ->where('hash', $input['hash'])
+            ->whereNull('used_at')
+            ->first(['id', 'created_at']);
+
+        if(!$last_auth_code) {
+            return response()->json([
+                'status_code' => 'AUTH_INFO_INCORRECT',
+                'status_message' => __('hemend.Authentication information is incorrect.')
+            ], 401);
+        }
+
+        if(strtotime($last_auth_code->created_at) < strtotime('-3 minute')) {
+            return response()->json([
+                'status_code' => 'CODE_EXPIRED',
+                'status_message' => __('hemend.The validation code has expired.')
+            ], 401);
+        }
+
+        UsersAuthCodes::where('id', $last_auth_code->id)
+            ->update([
+                'used_at' => date('Y-m-d H:i:s'),
+            ]);
+
+        $user = Users::query()
+            ->where('id', '!=', $this->user()->id)
+            ->where('mobile', $mobile)
+            ->where('not_deleted', '1')
+            ->first();
+
+        if($user) {
+            return response()->json([
+                'status_code' => 'MOBILE_NUMBER_OCCUPIED',
+                'status_message' => __('hemend.The given phone number has already been registered.')
+            ], 401);
+        }
+
+        if($this->user()->mobile == $mobile) {
+            return response()->json([
+                'status_code' => 'ALREADY_REGISTERED',
+                'status_message' => __('hemend.This mobile number is already registered in this account')
+            ], 400);
+        }
+
+        try {
+            return DB::transaction(function () use ($input, $mobile) {
+                $this->user()->update([
+                    'mobile' => $mobile,
+                ]);
+
+                return response()->json([
+                    'status_code' => 'OK',
+                ]);
+            });
+        }
+        catch (\Throwable $e) {
+            return response()->json([
+                'status_code' => 'ERROR_CHANGING_MOBILE_NUMBER',
+                'status_message' => __('hemend.Error when changing mobile number')
+            ], 400);
+        }
+    }
+}

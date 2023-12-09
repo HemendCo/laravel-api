@@ -1,9 +1,0 @@
-<?php
-
-namespace {{ namespace }};
-
-use {{ oldNamespace }} as Old{{ oldMethod }};
-
-class {{ class }} extends Old{{ oldMethod }}
-{
-}

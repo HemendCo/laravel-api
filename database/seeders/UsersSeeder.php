@@ -68,91 +68,49 @@ class UsersSeeder extends Seeder
             $admin->assignRole('super-admin');
         }
 
-        $service_name = 'Client';
-        
+        $admin_service_name = 'Admin';
+        $client_service_name = 'Client';
+
         Artisan::call('make:api-basic', [
-            'name' => $service_name,
-            'version' => '1'
+            'name' => $admin_service_name,
+            'version' => '1',
+            '--mode' => 'admin',
+        ]);
+        Artisan::call('make:api-basic', [
+            'name' => $client_service_name,
+            'version' => '1',
+            '--mode' => 'client',
         ]);
 
         Artisan::call('api:acl-collect', [
-            'service' => $service_name
+            'service' => $admin_service_name
+        ]);
+        Artisan::call('api:acl-collect', [
+            'service' => $client_service_name
         ]);
 
-        $publicPermissions = [
-            "AuthHandshake",
-            "AuthSendCode",
-            "AuthSignIn",
-            "AuthSignUp",
-            "AuthRoles",
+        $accessMember = [
+            [$admin_service_name, $adminRole],
+            [$client_service_name, $adminRole],
+            [$client_service_name, $userRole],
         ];
-        foreach ($publicPermissions as $permission) {
-            $publicRole->givePermissionTo($service_name . $permission);
+        foreach ($accessMember as $acc) {
+            \Hemend\Api\Libraries\Permissions::roleGivePermissionTo($acc[0], $acc[1], [
+                \Hemend\Api\Libraries\Service::PERMISSION_FLAG_PUBLIC,
+                \Hemend\Api\Libraries\Service::PERMISSION_FLAG_PRIVATE,
+                \Hemend\Api\Libraries\Service::PERMISSION_FLAG_PRIVATE_ONLY
+            ]);
         }
 
-        $adminPermissions = [
-            // Public
-            "AuthHandshake",
-            "AuthSendCode",
-            "AuthSignIn",
-            "AuthSignUp",
-            "AuthRoles",
-
-            // All Roles (without public)
-            "AccountChangeMobileNumber",
-            "AccountPermissions",
-            "AccountRoles",
-            "AccountSignOut",
-            "AccountTokensDelete",
-            "AccountTokensGet",
-            "AccountTokensRefresh",
-            "AccountTokensRevoke",
-            "AccountUserInfo",
-
-            // Admin
-            "AclGroupsChangePosition",
-            "AclGroupsGet",
-            "AclGroupsGetPermissions",
-            "AclGroupsUpdate",
-            "AclPermissionsChangePosition",
-            "AclPermissionsCollect",
-            "AclPermissionsGet",
-            "AclPermissionsUpdate",
-            "AclRolesActive",
-            "AclRolesAdd",
-            "AclRolesGet",
-            "AclRolesGetPermissions",
-            "AclRolesGivePermission",
-            "AclRolesInactive",
-            "AclRolesRevokePermission",
-            "AclRolesSetDefault",
-            "AclRolesUpdate"
+        $accessPublic = [
+            [$admin_service_name, $publicRole],
+            [$client_service_name, $publicRole],
         ];
-        foreach ($adminPermissions as $permission) {
-            $adminRole->givePermissionTo($service_name . $permission);
-        }
-
-        $userPermissions = [
-            // Public
-            "AuthHandshake",
-            "AuthSendCode",
-            "AuthSignIn",
-            "AuthSignUp",
-            "AuthRoles",
-
-            // All Roles (without public)
-            "AccountChangeMobileNumber",
-            "AccountPermissions",
-            "AccountRoles",
-            "AccountSignOut",
-            "AccountTokensDelete",
-            "AccountTokensGet",
-            "AccountTokensRefresh",
-            "AccountTokensRevoke",
-            "AccountUserInfo"
-        ];
-        foreach ($userPermissions as $permission) {
-            $userRole->givePermissionTo($service_name . $permission);
+        foreach ($accessPublic as $acc) {
+            \Hemend\Api\Libraries\Permissions::roleGivePermissionTo($acc[0], $acc[1], [
+                \Hemend\Api\Libraries\Service::PERMISSION_FLAG_PUBLIC,
+                \Hemend\Api\Libraries\Service::PERMISSION_FLAG_PUBLIC_ONLY
+            ]);
         }
     }
 }

@@ -2,13 +2,16 @@
 
 namespace {{ namespace }};
 
+use Hemend\Api\Libraries\Service;
 use Illuminate\Http\Request;
 use Laravel\Passport\Passport;
 
-abstract class {{ class }}
+abstract class {{ class }} extends Service
 {
-    const GUARD = 'api';
+    const GUARD = '{{ guard }}';
     const SERVICE = '{{ class }}';
+
+    static private $service = null;
 
     /**
     * @var Request $request
@@ -83,11 +86,26 @@ abstract class {{ class }}
         if($name) {
             return self::SERVICE . $name;
         }
-        // $action = get_class($this);
-        $action = static::class;
-        $permission = substr($action, (strrpos($action, '\\')) + 1);
+        // $endpoint = get_class($this);
+        $endpoint = static::class;
+        $permission_untidy = array_slice(explode('\\', $endpoint), -2, 2, true);
+        $permission = implode('.', $permission_untidy);
 
-        return self::SERVICE . $permission;
+        return self::SERVICE . '.' . $permission;
+    }
+
+    /**
+     * @return \App\Models\AclServices
+     */
+    static public final function service(): ?\App\Models\AclServices
+    {
+        if(self::$service === null) {
+            self::$service = \App\Models\AclServices::query()
+                ->where('name', self::SERVICE)
+                ->first();
+        }
+
+        return self::$service;
     }
 
     /**

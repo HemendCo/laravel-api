@@ -1,0 +1,67 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Models\AclRoles as Roles;
+use Hemend\Api\Implements\Endpoint;
+use Illuminate\Support\Facades\Validator;
+
+class Get extends AclRoles implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.Roles');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'page_number' => 'bail|nullable|numeric|min:1',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PAGE_NUMBER_INVALID',
+                'status_message' => __('hemend.The page number invalid')
+            ], 400);
+        }
+
+        $limit_min   = config('api.paginate.limit.min');
+        $limit_max   = config('api.paginate.limit.max');
+
+        $validator = Validator::make($input, [
+            'page_limit' => 'bail|nullable|numeric|between:'.$limit_min.','.$limit_max,
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PAGE_LIMIT_INVALID',
+                'status_message' => __('hemend.The page limit invalid')
+            ], 400);
+        }
+
+        $page_number = request()->input('page_number', 1);
+        $page_limit = request()->input('page_limit', $limit_min);
+
+        $query = Roles::query();
+        $query->orderBy('id', 'asc');
+
+        $paginate = $query->paginate($page_limit, ['*'], 'page_number', $page_number);
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => [
+                'roles' => $paginate->items(),
+                'page' => [
+                    'current' 	=> $paginate->currentPage(),
+                    'last' 		=> $paginate->lastPage(),
+                    'total' 	=> $paginate->total(),
+                    'limit' 	=> $paginate->perPage(),
+                ]
+            ]
+        ]);
+    }
+}

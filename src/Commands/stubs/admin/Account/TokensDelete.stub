@@ -1,0 +1,50 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use Hemend\Api\Implements\Endpoint;
+use Illuminate\Support\Facades\Validator;
+use Laravel\Passport\Token;
+
+class TokensDelete extends Account implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.Token delete');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'token_id' => 'bail|required|string|min:80|max:80',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'TOKEN_ID_INVALID',
+                'status_message' => __('hemend.The token id invalid')
+            ], 400);
+        }
+
+        $token = Token::where('user_id', $this->user()->id)->find($input['token_id']);
+
+        if(!$token) {
+            return response()->json([
+                'status_code' => 'TOKEN_ID_INCORRECT',
+                'status_message' => __('hemend.The token id is incorrect.')
+            ], 401);
+        }
+
+        $token->delete();
+
+        $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
+        $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($token->id);
+
+        return response()->json([
+            'status_code' => 'OK',
+        ]);
+    }
+}

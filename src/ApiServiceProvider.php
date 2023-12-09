@@ -5,6 +5,7 @@ namespace Hemend\Api;
 use Hemend\Api\Providers\AuthServiceProvider;
 use Hemend\Api\Providers\ConsoleServiceProvider;
 use Hemend\Api\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 
@@ -16,6 +17,8 @@ class ApiServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Schema::defaultStringLength(191);
+
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(ConsoleServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
@@ -42,6 +45,10 @@ class ApiServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../models' => app_path('Models'),
             ], ['models', 'api']);
+
+            $this->publishes([
+              __DIR__.'/../lang/' => lang_path(),
+            ], ['lang', 'api']);
         }
     }
     

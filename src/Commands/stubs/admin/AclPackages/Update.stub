@@ -1,0 +1,62 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Models\AclPackages as Packages;
+use Hemend\Api\Implements\Endpoint;
+use Illuminate\Support\Facades\Validator;
+
+class Update extends AclPackages implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.Package update');
+    }
+
+    public function __invoke()
+    {
+        $request = $this->getRequest();
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'id' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PACKAGE_ID_INVALID',
+                'status_message' => __('hemend.The package id is invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'title' => 'bail|required|string|min:1|max:150',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PACKAGE_TITLE_INVALID',
+                'status_message' => __('hemend.The package title invalid')
+            ], 400);
+        }
+
+        $package = Packages::where('id', request()->input('id'))->first();
+
+        if (!$package) {
+            return response()->json([
+                'status_code' => 'PACKAGE_ID_INVALID',
+                'status_message' => __('hemend.The package id is invalid')
+            ], 400);
+        }
+
+        $package->update([
+            'title' => $request->input('title')
+        ]);
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => $package,
+        ]);
+    }
+}

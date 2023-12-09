@@ -1,0 +1,16 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+
+class AclPermissions extends {{ version }}
+{
+    static public function package(): object
+    {
+        return (object) [
+            'name' => 'AclPermissions',
+            'title' => 'Access level - Permissions'
+        ];
+    }
+}

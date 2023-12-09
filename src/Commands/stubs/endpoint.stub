@@ -1,0 +1,26 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use Hemend\Api\Implements\Endpoint;
+
+class {{ class }} extends {{ package }} implements Endpoint
+{
+    static public function defaultPermissionFlag()
+    {
+        return self::{{ flag }};
+    }
+
+    static public function title(): string
+    {
+        return __('hemend.{{ class }}');
+    }
+
+    public function __invoke()
+    {
+        return response()->json([
+            'status_code' => 'OK',
+        ]);
+    }
+}

@@ -17,7 +17,7 @@ class CreateUsersAuthCodesTable extends Migration
             $table->id();
             $table->string('mobile', 11)->index('mobile');
             $table->string('service', 10);
-            $table->string('code', 4);
+            $table->string('code', 6);
             $table->string('hash', 10);
             $table->timestamp('used_at')->nullable();
             $table->timestamps();

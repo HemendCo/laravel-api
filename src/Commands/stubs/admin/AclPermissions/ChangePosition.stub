@@ -1,0 +1,101 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Models\AclPermissions as Permissions;
+use Hemend\Api\Implements\Endpoint;
+use Illuminate\Support\Facades\Validator;
+
+class ChangePosition extends AclPermissions implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.Arrange permission');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'service_id' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'SERVICE_ID_INVALID',
+                'status_message' => __('hemend.The service id is invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'package_id' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PACKAGE_ID_INVALID',
+                'status_message' => __('hemend.The package id is invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'from' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'FROM_PERMISSION_ID_INVALID',
+                'status_message' => __('hemend.The from permission id is invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'to' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'TO_PERMISSION_ID_INVALID',
+                'status_message' => __('hemend.The to permission id is invalid')
+            ], 400);
+        }
+
+        $from = Permissions::where('guard_name', self::GUARD)
+            ->where('package_id', request()->input('package_id'))
+            ->where('id', request()->input('from'))
+            ->first(['position']);
+
+        if(!$from) {
+            return response()->json([
+                'status_code' => 'GROUP_ID_OR_FROM_PERMISSION_ID_INVALID',
+                'status_message' => __('hemend.The group id or from permission id is invalid.')
+            ], 400);
+        }
+
+        $to = Permissions::where('guard_name', self::GUARD)
+            ->where('package_id', request()->input('package_id'))
+            ->where('id', request()->input('to'))
+            ->first(['position']);
+
+        if(!$to) {
+            return response()->json([
+                'status_code' => 'GROUP_ID_OR_TO_PERMISSION_ID_INVALID',
+                'status_message' => __('hemend.The group id or to permission id is invalid.')
+            ], 400);
+        }
+
+        Permissions::updatePosition(
+            $from->position,
+            $to->position,
+            request()->input('service_id'),
+            request()->input('package_id'),
+            self::GUARD
+        );
+
+        return response()->json([
+            'status_code' => 'OK',
+        ]);
+    }
+}

@@ -1,0 +1,146 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Models\Users;
+use App\Models\UsersAuthCodes;
+use Hemend\Api\Implements\Endpoint;
+use Hemend\Api\Traits\PassportToken;
+use Hemend\Library\Numbers;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
+use Propaganistas\LaravelPhone\PhoneNumber;
+
+class SignIn extends Auth implements Endpoint
+{
+    use PassportToken;
+
+    static public function defaultPermissionFlag()
+    {
+        return self::PERMISSION_FLAG_PUBLIC_ONLY;
+    }
+
+    static public function title(): string
+    {
+        return __('hemend.Login');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        foreach (['mobile', 'hash', 'code'] as $key) {
+            if(isset($input[$key]) && is_scalar($input[$key])) {
+                $input[$key] = Numbers::persianToLatin($input[$key]);
+            }
+        }
+
+        if(isset($input['mobile'])) {
+            $input['mobile_number'] = $input['mobile'];
+            unset($input['mobile']);
+        }
+
+        $validator = Validator::make($input, [
+            'mobile_number' => 'bail|required|numeric|min:11|phone:IR,mobile',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'MOBILE_NUMBER_INVALID',
+                'status_message' => __('hemend.The mobile number invalid')
+            ], 400);
+        }
+
+        $phone = new PhoneNumber($input['mobile_number'], ['IR']);
+
+        if (!$phone->isValid()) {
+            return response()->json([
+                'status_code' => 'MOBILE_NUMBER_INVALID',
+                'status_message' => __('hemend.The mobile number invalid')
+            ], 400);
+        }
+
+        $mobile = $phone->formatForMobileDialingInCountry('IR');
+
+        $validator = Validator::make($input, [
+            'hash' => 'bail|required|string|min:10|max:10',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'HASH_INVALID',
+                'status_message' => __('hemend.The hash invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'code' => 'bail|required|digits:4'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status_code' => 'CODE_INVALID',
+                'status_message' => __('hemend.The validation code invalid')
+            ], 400);
+        }
+
+        $last_auth_code = UsersAuthCodes::where('mobile', $mobile)
+            ->where('service', parent::SERVICE)
+            ->where('code', $input['code'])
+            ->where('hash', $input['hash'])
+            ->whereNull('used_at')
+            ->first(['id', 'created_at']);
+
+        if(!$last_auth_code) {
+            return response()->json([
+                'status_code' => 'AUTH_INFO_INCORRECT',
+                'status_message' => __('hemend.Authentication information is incorrect.')
+            ], 401);
+        }
+
+        if(strtotime($last_auth_code->created_at) < strtotime('-2 minute')) {
+            return response()->json([
+                'status_code' => 'CODE_EXPIRED',
+                'status_message' => __('hemend.The validation code has expired.')
+            ], 401);
+        }
+
+        UsersAuthCodes::where('id', $last_auth_code->id)
+            ->update([
+                'used_at' => date('Y-m-d H:i:s'),
+            ]);
+
+        $user = Users::where('mobile', $mobile)
+            ->where('not_deleted', '1')
+            ->first();
+
+        if(!$user) {
+            return response()->json([
+                'status_code' => 'MOBILE_NUMBER_UNOCCUPIED',
+                'status_message' => __('hemend.The validation code is valid but no user with the given mobile number is registered.')
+            ], 401);
+        }
+
+        if($user->blocked || $user->suspended || !$user->activated) {
+            return response()->json([
+                'status_code' => 'ACCESS_DENIED',
+                'status_message' => __('hemend.You do not have access to sign in.')
+            ], 403);
+        }
+
+        $token = $this->getBearerTokenByUser($user, [parent::SERVICE]);
+        $expiration = Carbon::now()->addSeconds($token['expires_in']);
+
+        return response()->json([
+            'status_code' => 'OK',
+            'token' => [
+                'token_type' => $token['token_type'],
+                'expires_in' => $expiration,
+                'access_token' => $token['access_token'],
+                'refresh_token' => $token['refresh_token'],
+            ],
+            'user' => $user
+        ]);
+    }
+}

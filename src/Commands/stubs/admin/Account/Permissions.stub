@@ -1,0 +1,30 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use Hemend\Api\Implements\Endpoint;
+
+class Permissions extends Account implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.Permissions');
+    }
+
+    public function __invoke()
+    {
+        if($this->user()->hasRole('super-admin')) {
+            $permissions = ['*'];
+        } else {
+            $permissions = collect($this->user()->getAllPermissions())
+                ->where('service_id', $this->service()->id)
+                ->pluck('name');
+        }
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => $permissions,
+        ]);
+    }
+}

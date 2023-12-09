@@ -1,0 +1,99 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Models\AclPackages as Packages;
+use Hemend\Api\Implements\Endpoint;
+use Illuminate\Support\Facades\Validator;
+
+class ChangePosition extends AclPackages implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.Arrange package');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'service_id' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'SERVICE_ID_INVALID',
+                'status_message' => __('hemend.The service id is invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'from' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'FROM_PACKAGE_ID_INVALID',
+                'status_message' => __('hemend.The from package id is invalid')
+            ], 400);
+        }
+
+        $validator = Validator::make($input, [
+            'to' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'TO_PACKAGE_ID_INVALID',
+                'status_message' => __('hemend.The to package id is invalid')
+            ], 400);
+        }
+
+        $service = \App\Models\AclServices::query()
+            ->where('guard_name', self::GUARD)
+            ->where('id', request()->input('service_id'))
+            ->first();
+
+        if (!$service) {
+            return response()->json([
+                'status_code' => 'SERVICE_ID_INVALID',
+                'status_message' => __('hemend.The service id is invalid')
+            ], 400);
+        }
+
+        $from = Packages::where('guard_name', self::GUARD)
+            ->where('id', request()->input('from'))
+            ->first(['position']);
+
+        if(!$from) {
+            return response()->json([
+                'status_code' => 'FROM_PACKAGE_ID_INVALID',
+                'status_message' => __('hemend.The from package id is invalid.')
+            ], 400);
+        }
+
+        $to = Packages::where('guard_name', self::GUARD)
+            ->where('id', request()->input('to'))
+            ->first(['position']);
+
+        if(!$to) {
+            return response()->json([
+                'status_code' => 'TO_PACKAGE_ID_INVALID',
+                'status_message' => __('hemend.The to package id is invalid.')
+            ], 400);
+        }
+
+        Packages::updatePosition(
+            $from->position,
+            $to->position,
+            $service->id,
+            self::GUARD
+        );
+
+        return response()->json([
+            'status_code' => 'OK',
+        ]);
+    }
+}

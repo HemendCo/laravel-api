@@ -1,0 +1,16 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+
+class AclPackages extends {{ version }}
+{
+    static public function package(): object
+    {
+        return (object) [
+            'name' => 'AclPackages',
+            'title' => __('hemend.Access level - Packages')
+        ];
+    }
+}

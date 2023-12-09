@@ -1,0 +1,16 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+
+class Auth extends {{ version }}
+{
+    static public function package(): object
+    {
+        return (object) [
+            'name' => 'Auth',
+            'title' => __('hemend.Authentication')
+        ];
+    }
+}

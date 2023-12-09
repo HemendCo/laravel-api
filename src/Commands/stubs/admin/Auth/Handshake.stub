@@ -1,0 +1,50 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use Hemend\Api\Implements\Endpoint;
+
+class Handshake extends Auth implements Endpoint
+{
+    static public function defaultPermissionFlag()
+    {
+        return self::PERMISSION_FLAG_PUBLIC;
+    }
+
+    static public function title(): string
+    {
+        return __('hemend.Handshake');
+    }
+
+    public function __invoke()
+    {
+        if ($this->user()) {
+            $roles = $this->user()->getRoleNames();
+            if ($this->user()->hasRole('super-admin')) {
+                $permissions = ['*'];
+            } else {
+                $permissions = collect($this->user()->getAllPermissions())
+                    ->where('service_id', $this->service()->id)
+                    ->pluck('name');
+            }
+        } else {
+            $role = \App\Models\AclRoles::query()
+                ->with(['permissions' => function($q) {
+                    $q->where('service_id', $this->service()->id);
+                }])
+                ->where('id', 1)
+                ->first();
+            $roles = [$role->name];
+            $permissions = $role->getPermissionNames();
+        }
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => [
+                'roles' => $roles,
+                'permissions' => $permissions,
+            ],
+        ]);
+    }
+}

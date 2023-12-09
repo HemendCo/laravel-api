@@ -1,0 +1,22 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use Hemend\Api\Implements\Endpoint;
+
+class UserInfo extends Account implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.User information');
+    }
+
+    public function __invoke()
+    {
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => $this->user(),
+        ]);
+    }
+}

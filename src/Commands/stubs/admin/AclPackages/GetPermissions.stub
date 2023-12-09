@@ -1,0 +1,55 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespace }};
+use App\Models\AclPackages as Packages;
+use Hemend\Api\Implements\Endpoint;
+use Illuminate\Support\Facades\Validator;
+
+class GetPermissions extends AclPackages implements Endpoint
+{
+    static public function title(): string
+    {
+        return __('hemend.Package permissions');
+    }
+
+    public function __invoke()
+    {
+        $input = $this->getRequest()->all();
+
+        $validator = Validator::make($input, [
+            'id' => 'bail|required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => 'PACKAGE_ID_INVALID',
+                'status_message' => __('hemend.The package id is invalid')
+            ], 400);
+        }
+
+        $package = Packages::with('permissions')
+            ->where('id', request()->input('id'))
+            ->first();
+
+        if (!$package) {
+            return response()->json([
+                'status_code' => 'PACKAGE_ID_INVALID',
+                'status_message' => __('hemend.The package id is invalid')
+            ], 409);
+        }
+
+        $perms = $package->permissions;
+        $package = $package->toArray();
+        unset($package['permissions']);
+
+        return response()->json([
+            'status_code' => 'OK',
+            'data' => [
+                'package' => $package,
+                'permissions' => $perms
+            ]
+        ]);
+    }
+}

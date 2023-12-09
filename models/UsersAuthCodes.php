@@ -7,17 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class UsersAuthCodes extends Model
 {
-    use HasFactory;
+  use HasFactory;
 
-    protected $guarded = [];
+  protected $guarded = [];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'code',
-        'hash',
-    ];
+  /**
+   * The attributes that should be hidden for serialization.
+   *
+   * @var array<int, string>
+   */
+  protected $hidden = [
+    'code',
+    'hash',
+  ];
 }
