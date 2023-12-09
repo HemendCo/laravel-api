@@ -143,7 +143,6 @@ php artisan make:api-version [Service] [Version]
 ## Other settings
 1. After installing the package and doing the above, you need to publish and migrate to the database:
 ```shell
-php artisan vendor:publish --provider="Hemend\Api\ApiServiceProvider" --tag=api
 php artisan migrate
 php artisan passport:install
 php artisan db:seed --class=UsersSeeder
