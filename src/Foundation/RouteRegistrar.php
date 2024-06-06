@@ -51,19 +51,22 @@ class RouteRegistrar
      */
     public function storageLink()
     {
-        $this->router->group(['middleware' => ['web']], function ($router) {
-            $router->get('/storage-link', function () {
-                $target = storage_path('app/public');
-                $shortcut = public_path('storage');
+        $this->router->get('/storage-link', function () {
+            $source = storage_path('app/public');
+            $target = public_path('storage');
 
-                if(!@symlink($target, $shortcut)) {
-                    $html = '<span style="color: #8d0505">Attempt to create storage folder shortcut failed.</span>';
-                    return response($html, 500)->withHeaders(['Content-Type', 'text/html']);
-                }
+            if(@readlink($target)) {
+              $html = '<span style="color: #fa7504;font-size: 20px">This link has already been created. Please disable "storage_link" from <strong>`config/api.php`</strong>.</span>';
+              return response($html, 500)->withHeaders(['Content-Type', 'text/html']);
+            }
 
-                $html = '<span style="color: #028038">Done successfully. Please disable "storage_link" from <strong>`config/api.php`</strong>.</span>';
-                return response($html, 200)->withHeaders(['Content-Type', 'text/html']);
-            });
+            if(!@symlink($source, $target) || !@readlink($target)) {
+                $html = '<span style="color: #8d0505;font-size: 20px">Attempt to create storage folder shortcut failed.</span>';
+                return response($html, 500)->withHeaders(['Content-Type', 'text/html']);
+            }
+
+            $html = '<span style="color: #028038;font-size: 20px">Done successfully. Please disable "storage_link" from <strong>`config/api.php`</strong>.</span>';
+            return response($html, 200)->withHeaders(['Content-Type', 'text/html']);
         });
     }
 }

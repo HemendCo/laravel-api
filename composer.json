@@ -9,10 +9,10 @@
     "type": "library",
     "require": {
         "php": ">=8.1",
-        "hemend/php-library": "^1.1.0",
-        "laravel/passport": "^11.10.0",
-        "propaganistas/laravel-phone": "^5.0.3",
-        "spatie/laravel-permission": "^6.1.0"
+        "hemend/php-library": "^1.2.0",
+        "laravel/passport": "^12.2.0",
+        "propaganistas/laravel-phone": "^5.3.2",
+        "spatie/laravel-permission": "^6.7.0"
     },
     "license": "MIT",
     "autoload": {

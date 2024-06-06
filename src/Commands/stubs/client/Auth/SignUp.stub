@@ -116,14 +116,14 @@ class SignUp extends Auth implements Endpoint
             return response()->json([
                 'status_code' => 'AUTH_INFO_INCORRECT',
                 'status_message' => __('hemend.Authentication information is incorrect.')
-            ], 401);
+            ], 403);
         }
 
         if(strtotime($last_auth_code->created_at) < strtotime('-3 minute')) {
             return response()->json([
                 'status_code' => 'CODE_EXPIRED',
                 'status_message' => __('hemend.The validation code has expired.')
-            ], 401);
+            ], 403);
         }
 
         $validator = Validator::make($input, [
@@ -152,7 +152,7 @@ class SignUp extends Auth implements Endpoint
             return response()->json([
                 'status_code' => 'MOBILE_NUMBER_OCCUPIED',
                 'status_message' => __('hemend.The validation code is valid but the given phone number has already been registered.')
-            ], 401);
+            ], 403);
         }
 
         UsersAuthCodes::where('id', $last_auth_code->id)
@@ -171,18 +171,20 @@ class SignUp extends Auth implements Endpoint
         
         $user->assignRole($role->name);
 
-        $token = $this->getBearerTokenByUser($user, [parent::SERVICE]);
+        $token = $this->getBearerTokenByUser($user, [parent::SERVICE])['token'];
         $expiration = Carbon::now()->addSeconds($token['expires_in']);
 
         return response()->json([
             'status_code' => 'OK',
-            'token' => [
-                'token_type' => $token['token_type'],
-                'expires_in' => $expiration,
-                'access_token' => $token['access_token'],
-                'refresh_token' => $token['refresh_token'],
-            ],
-            'user' => $user
+            'data' => [
+                'token' => [
+                    'token_type' => $token['token_type'],
+                    'expires_in' => $expiration,
+                    'access_token' => $token['access_token'],
+                    'refresh_token' => $token['refresh_token'],
+                ],
+                'user' => $user
+            ]
         ]);
     }
 }

@@ -9,11 +9,10 @@ use Illuminate\Support\Collection;
 use Spatie\Permission\Contracts\Permission;
 use Spatie\Permission\Contracts\Role;
 use Spatie\Permission\PermissionRegistrar;
-use Spatie\Permission\Traits\HasPermissions;
 
 trait HasRoles
 {
-  use HasPermissions;
+  use AclHandler, HasPermissions;
 
   private ?string $roleClass = null;
 

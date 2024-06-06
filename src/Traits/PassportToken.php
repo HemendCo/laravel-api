@@ -3,11 +3,13 @@
 namespace Hemend\Api\Traits;
 
 use DateTimeImmutable;
+use Hemend\Api\Libraries\AccessToken;
+use Hemend\Api\Libraries\AccessTokenClaim;
 use Laravel\Passport\Bridge\Scope;
 use Illuminate\Foundation\Auth\User;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Events\Dispatcher;
-use Laravel\Passport\Bridge\AccessToken;
+//use Laravel\Passport\Bridge\AccessToken;
 use Laravel\Passport\Bridge\AccessTokenRepository;
 use Laravel\Passport\Bridge\Client;
 use Laravel\Passport\Bridge\RefreshTokenRepository;
@@ -80,7 +82,7 @@ trait PassportToken
         }
     }
 
-    private function createPassportTokenByUser($userId, $clientId, $tokenScopes = [])
+    private function createPassportTokenByUser($userId, $clientId, $tokenScopes = [], $tokenClaims = [])
     {
         $scopes = [];
         if (is_array($tokenScopes)) {
@@ -90,6 +92,13 @@ trait PassportToken
         }
 
         $accessToken = new AccessToken($userId, $scopes, new Client(null, null, null));
+
+        if (is_array($tokenClaims)) {
+          foreach ($tokenClaims as $name => $data) {
+            $accessToken->addClaim(new AccessTokenClaim($name, $data));
+          }
+        }
+
         $accessToken->setIdentifier($this->generateUniqueIdentifier());
         $accessToken->setClient(new Client($clientId, null, null));
         $accessToken->setExpiryDateTime((new DateTimeImmutable())->add(Passport::tokensExpireIn()));
@@ -216,23 +225,27 @@ trait PassportToken
     /**
      * @param User $user
      * @param array $tokenScopes
+     * @param array $tokenClaims Payload
      * @param numeric $clientId default = 1
      * @param bool $output default = false
      * @return array|\Illuminate\Support\Collection|BearerTokenResponse
      */
-    protected function getBearerTokenByUser(User $user, $tokenScopes = [], $clientId = 1, $output = false)
+    protected function getBearerTokenByUser(User $user, $tokenScopes = [], $tokenClaims = [], $clientId = 1, $output = false)
     {
         //you can simply use this method (available only on laravel 6.x)
         //return collect($user->createToken(''))->forget('token');
 
-        $passportToken = $this->createPassportTokenByUser($user->id, $clientId, $tokenScopes);
+        $passportToken = $this->createPassportTokenByUser($user->id, $clientId, $tokenScopes, $tokenClaims);
         $bearerToken = $this->sendBearerTokenResponse($passportToken['access_token'], $passportToken['refresh_token']);
 
         if (! $output) {
             $bearerToken = json_decode($bearerToken->getBody()->__toString(), true);
         }
 
-        return $bearerToken;
+      return [
+        'passport_token' => $passportToken,
+        'token' => $bearerToken
+      ];
     }
 
     /**
@@ -264,13 +277,15 @@ trait PassportToken
             throw OAuthServerException::invalidScope(parent::SERVICE);
         }
 
+        $claimsArray = $oldRefreshToken['mainData'] ?? [];
+
         $tokenRepository = app('Laravel\Passport\TokenRepository');
         $tokenRepository->revokeAccessToken($oldRefreshToken['access_token_id']);
 
         $refreshTokenRepository = app('Laravel\Passport\RefreshTokenRepository');
         $refreshTokenRepository->revokeRefreshToken($oldRefreshToken['refresh_token_id']);
 
-        $passportToken = $this->createPassportTokenByUser($oldRefreshToken['user_id'], $clientId, $scopesArray);
+        $passportToken = $this->createPassportTokenByUser($oldRefreshToken['user_id'], $clientId, $scopesArray, $claimsArray);
         $bearerToken = $this->sendBearerTokenResponse($passportToken['access_token'], $passportToken['refresh_token']);
 
         if (! $output) {

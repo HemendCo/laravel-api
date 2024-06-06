@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Hemend\Api\Traits\AclHandler;
 use Spatie\Permission\Contracts\Role as RoleContract;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class AclRoles extends SpatieRole
 {
+  use AclHandler;
+
   protected $hidden = ['guard_name'];
 
   protected static function findByParam(array $params = []): ?RoleContract

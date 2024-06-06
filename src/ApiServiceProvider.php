@@ -5,9 +5,9 @@ namespace Hemend\Api;
 use Hemend\Api\Providers\AuthServiceProvider;
 use Hemend\Api\Providers\ConsoleServiceProvider;
 use Hemend\Api\Providers\RouteServiceProvider;
+use Hemend\Api\Providers\JobServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-
 
 class ApiServiceProvider extends ServiceProvider
 {
@@ -22,6 +22,7 @@ class ApiServiceProvider extends ServiceProvider
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(ConsoleServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+        $this->app->register(JobServiceProvider::class);
 
         $configPath = __DIR__ . '/../config/config.php';
         $permissionConfigPath = __DIR__ . '/../config/permission.php';

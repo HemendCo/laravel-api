@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Hemend\Api\Traits\AclHandler;
 use Hemend\Library\Laravel\Traits\PositionModel;
 use Spatie\Permission\Contracts\Permission as PermissionContract;
 use Spatie\Permission\Guard;
@@ -9,7 +10,7 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
 
 class AclPermissions extends SpatiePermission
 {
-  use PositionModel;
+  use AclHandler, PositionModel;
 
   protected $hidden = ['guard_name', 'position'];
 

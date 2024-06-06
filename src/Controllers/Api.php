@@ -42,7 +42,7 @@ class Api extends Controller
 
         if(!class_exists($endpointClass)) {
           return response()->json([
-            'status_code' => 'endpoint_INVALID',
+            'status_code' => 'ENDPOINT_INVALID',
             'status_message' => sprintf(__('hemend.Endpoint \'%s\' was not found on package \'%s\''), $endpoint, $service_name .' '. $package_name)
           ], 404);
         }
@@ -78,7 +78,15 @@ class Api extends Controller
             } catch (\Throwable $e) {
                 return response()->json([
                     'status_code' => 'PARAMETERS_INCORRECT',
-                   'status_message' => __('hemend.Your request parameters are incorrect.')
+                    'status_message' => __('hemend.Your request parameters are incorrect.'),
+                    ...(
+                    config('app.debug') == true
+                        ? [
+                          'debug_message' => $e->getMessage(),
+                          'debug_trace' => $e->getTraceAsString(),
+                        ]
+                        : []
+                    )
                 ], 400);
             }
 

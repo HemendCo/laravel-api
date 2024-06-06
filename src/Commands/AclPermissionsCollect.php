@@ -59,7 +59,8 @@ class AclPermissionsCollect extends Command
             $service_path = dirname($reflector->getFileName());
         }
 
-        $guard = $service_namespace::GUARD;
+//        $guard = $service_namespace::GUARD;
+        $guard = '*';
 
         $service = AclServices::firstOrCreate([
           'name' => $service_name,

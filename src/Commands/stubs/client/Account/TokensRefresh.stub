@@ -38,7 +38,7 @@ class TokensRefresh extends Account implements Endpoint
 
             return response()->json([
                 'status_code' => 'OK',
-                'token' => [
+                'data' => [
                     'token_type' => $token['token_type'],
                     'expires_in' => $expiration,
                     'access_token' => $token['access_token'],

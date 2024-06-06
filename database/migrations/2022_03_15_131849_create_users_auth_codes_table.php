@@ -16,7 +16,7 @@ class CreateUsersAuthCodesTable extends Migration
         Schema::create('users_auth_codes', function (Blueprint $table) {
             $table->id();
             $table->string('mobile', 11)->index('mobile');
-            $table->string('service', 10);
+            $table->string('service', 30);
             $table->string('code', 6);
             $table->string('hash', 10);
             $table->timestamp('used_at')->nullable();

@@ -91,14 +91,14 @@ class ChangeMobileNumber extends Account implements Endpoint
             return response()->json([
                 'status_code' => 'AUTH_INFO_INCORRECT',
                 'status_message' => __('hemend.Authentication information is incorrect.')
-            ], 401);
+            ], 403);
         }
 
         if(strtotime($last_auth_code->created_at) < strtotime('-3 minute')) {
             return response()->json([
                 'status_code' => 'CODE_EXPIRED',
                 'status_message' => __('hemend.The validation code has expired.')
-            ], 401);
+            ], 403);
         }
 
         UsersAuthCodes::where('id', $last_auth_code->id)
@@ -116,7 +116,7 @@ class ChangeMobileNumber extends Account implements Endpoint
             return response()->json([
                 'status_code' => 'MOBILE_NUMBER_OCCUPIED',
                 'status_message' => __('hemend.The given phone number has already been registered.')
-            ], 401);
+            ], 403);
         }
 
         if($this->user()->mobile == $mobile) {

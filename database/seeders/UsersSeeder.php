@@ -21,7 +21,7 @@ class UsersSeeder extends Seeder
                 'activated' => '1',
                 'name' => 'public',
                 'title' => 'Public',
-                'guard_name' => config('auth.defaults.guard'),
+                'guard_name' => '*',
             ]);
         }
 
@@ -30,7 +30,7 @@ class UsersSeeder extends Seeder
                 'activated' => '1',
                 'name' => 'super-admin',
                 'title' => 'Super Admin',
-                'guard_name' => config('auth.defaults.guard'),
+                'guard_name' => '*',
             ]);
         }
 
@@ -40,7 +40,7 @@ class UsersSeeder extends Seeder
                 'activated' => '1',
                 'name' => 'admin',
                 'title' => 'Admin',
-                'guard_name' => config('auth.defaults.guard'),
+                'guard_name' => '*',
             ]);
         }
 
@@ -51,7 +51,7 @@ class UsersSeeder extends Seeder
                 'is_default' => '1',
                 'name' => 'user',
                 'title' => 'User',
-                'guard_name' => config('auth.defaults.guard'),
+                'guard_name' => '*',
             ]);
         }
 

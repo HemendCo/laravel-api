@@ -101,7 +101,9 @@ class SendCode extends Auth implements Endpoint
 
         return response()->json([
             'status_code' => 'OK',
-            'hash' => $hash,
+            'data' => [
+                'hash' => $hash
+            ],
         ]);
     }
 }

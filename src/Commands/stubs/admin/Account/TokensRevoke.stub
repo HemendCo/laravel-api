@@ -34,7 +34,7 @@ class TokensRevoke extends Account implements Endpoint
             return response()->json([
                 'status_code' => 'TOKEN_ID_INCORRECT',
                 'status_message' => __('hemend.The token id is incorrect.')
-            ], 401);
+            ], 403);
         }
 
         $token->revoke();

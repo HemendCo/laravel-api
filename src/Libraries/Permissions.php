@@ -20,16 +20,20 @@ class Permissions
    * @return void
    */
   static public function roleGivePermissionTo(string $service, SpatieRole $role, array $flags) : void {
-    $reflector = new \ReflectionClass(self::$DEFAULT_NAMESPACE . $service);
+    $serviceClass = self::$DEFAULT_NAMESPACE . $service;
+
+    if (!class_exists($serviceClass)) {
+      throw new \Error('Class "'.$serviceClass.'" does not exist');
+    }
+    $reflector = new \ReflectionClass($serviceClass);
     $piMain = pathinfo($reflector->getFileName());
     $service_dir_path = $piMain['dirname'] . DIRECTORY_SEPARATOR . $piMain['filename'];
 
     $files = [];
     foreach (Glob::recursive($service_dir_path, '*/*/*.{php}', GLOB_BRACE) as $file) {
       $pi = pathinfo($file);
-      $file_without_ext = $pi['dirname'] . '/' . $pi['filename'];
-      $class_untidy = 'App\\' . substr($file_without_ext, strpos($file_without_ext, substr($reflector->getName(), 4)));
-      $class = str_replace('/', '\\', $class_untidy);
+      $file_without_ext = str_replace('/', '\\', $pi['dirname'] . '/' . $pi['filename']);
+      $class = 'App\\' . substr($file_without_ext, strpos($file_without_ext, substr($reflector->getName(), 4)));
 
       $namespace_start_of_version = str_replace($reflector->getName().'\\', '', $class);
       $namespace_without_version = preg_split('#\\\+#', $namespace_start_of_version, 2)[1];

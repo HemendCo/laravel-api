@@ -9,6 +9,8 @@ return [
     |
     | Supported: null, '*', ['storage_link']
     |
+    | URL [storage_link]: /api/storage-link
+    |
     */
     'routes' => null,
 
@@ -19,4 +21,9 @@ return [
         ]
     ],
 
+    'job' => [
+        'event_manager' => \Hemend\Api\Foundation\EventManagers\DefaultEventManager::class,
+        'model' => \Hemend\Api\Models\JobsTrackers::class,
+        'db_connection' => null
+    ],
 ];

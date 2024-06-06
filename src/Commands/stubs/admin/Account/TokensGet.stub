@@ -67,13 +67,15 @@ class TokensGet extends Account implements Endpoint
 
         return response()->json([
             'status_code' => 'OK',
-            'tokens' => $tokens,
-            'page' => [
-                'current' 	=> $paginate->currentPage(),
-                'last' 		=> $paginate->lastPage(),
-                'total' 	=> $paginate->total(),
-                'limit' 	=> $paginate->perPage(),
-            ]
+            'data' => [
+                'tokens' => $tokens,
+                'page' => [
+                    'current' 	=> $paginate->currentPage(),
+                    'last' 		=> $paginate->lastPage(),
+                    'total' 	=> $paginate->total(),
+                    'limit' 	=> $paginate->perPage(),
+                ]
+            ],
         ]);
     }
 }

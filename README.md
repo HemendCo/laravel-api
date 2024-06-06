@@ -148,6 +148,57 @@ php artisan migrate
 php artisan passport:install
 php artisan db:seed --class=UsersSeeder
 ```
+2. Trackable Job Example(path: app/Jobs/TrackableTest.php):
+```shell
+<?php
+
+namespace App\Jobs;
+
+use Hemend\Api\Implements\TrackableJob;
+use Hemend\Api\Traits\TrackableQueue;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+
+class TrackableTest implements ShouldQueue, TrackableJob
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TrackableQueue;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct()
+    {
+        $this->prepareTracker();
+    }
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        $max = mt_rand(5, 30);
+        $this->setProgressMax($max);
+
+        for ($i = 0; $i <= $max; $i += 1) {
+            sleep(1); // Some Long Operations
+            $this->setProgressNow($i);
+        }
+
+        $this->setOutput(['total' => $max, 'other' => 'parameter']);
+    }
+}
+```
+usage:
+```shell
+<?php
+
+use App\Jobs\TrackableTest;
+
+TrackableTest::dispatch();
+```
 
 ## License
 Licensed under the MIT license, see [LICENSE](LICENSE)
