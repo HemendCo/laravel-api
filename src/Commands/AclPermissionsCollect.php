@@ -89,30 +89,32 @@ class AclPermissionsCollect extends Command
 
             foreach ($packages as $package_path) {
               $package_name = basename($package_path);
-              $files = glob($package_path . DIRECTORY_SEPARATOR . '*.{php}', GLOB_BRACE);
+              $files = glob($package_path . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, '{,*,*/*,*/*/*}.php'), GLOB_BRACE);
 
               foreach ($files as $file) {
                 $filename = pathinfo($file, PATHINFO_FILENAME);
 
-                $namespace = implode('\\', [$service_namespace, $version_dir_name, $package_name, $filename]);
+                $clean = preg_replace('#^' . preg_quote($package_path . DIRECTORY_SEPARATOR) . '#', '', $file);
+                $namespace = preg_replace('/\.\w+$/', '', implode('\\', [$service_namespace, $version_dir_name, $package_name, $clean]));
 
                 $package_info = $namespace::package();
                 $permission_title = $namespace::title();
-                $permission_name = trim($service_name . '.' . $package_info->name . '.' . $filename);
+                $permission_name = $service_name . '.' . $package_name . '.' . str_replace(['/', '\\'], '.', preg_replace('/\.\w+$/', '', $clean, PATHINFO_FILENAME));
 
-                if (!isset($checked_packages[$package_info->name])) {
-                  $checked_packages[$package_info->name] = AclPackages::query()
+                if (!isset($checked_packages[$package_path])) {
+                  $checked_packages[$package_path] = AclPackages::query()
                     ->where('service_id', '=', $service->id)
+                    ->whereNull('parent_id')
                     ->where('name', '=', $package_info->name)
                     ->where('guard_name', '=', $guard)
                     ->first();
-                  if (!$checked_packages[$package_info->name]) {
-                    $checked_packages[$package_info->name] = AclPackages::create([
+                  if (!$checked_packages[$package_path]) {
+                    $checked_packages[$package_path] = AclPackages::create([
                       'service_id' => $service->id,
                       'name' => $package_info->name,
                       'title' => trim($package_info->title),
                       'guard_name' => $guard,
-                      'position' => AclPackages::newPosition($service->id, $guard)
+                      'position' => AclPackages::newPosition($service->id, 0, $guard)
                     ]);
                   }
                 }
@@ -127,7 +129,42 @@ class AclPermissionsCollect extends Command
                   $permission_title = ucfirst(strtolower($permission_title));
                 }
 
-                $perm = Permissions::upsert($permission_name, $permission_title, $service->id, $checked_packages[$package_info->name]->id, $guard);
+                $subPackages = dirname($clean);
+                if(!!$subPackages && $subPackages != '.') {
+                  $oldPackPath = $package_path;
+                  $tmp_package_name = $package_name;
+                  $tmp_package_path = '';
+                  foreach (explode(DIRECTORY_SEPARATOR, $subPackages) as $sp) {
+                    $tmp_package_path = $oldPackPath . DIRECTORY_SEPARATOR . $sp;
+                    $tmp_package_name .= '.' . $sp;
+
+                    if (!isset($checked_packages[$tmp_package_path])) {
+                      $checked_packages[$tmp_package_path] = AclPackages::query()
+                        ->where('service_id', '=', $service->id)
+                        ->where('parent_id', '=', $checked_packages[$oldPackPath]->id)
+                        ->where('name', '=', $tmp_package_name)
+                        ->where('guard_name', '=', $guard)
+                        ->first();
+                      if (!$checked_packages[$tmp_package_path]) {
+                        $checked_packages[$tmp_package_path] = AclPackages::create([
+                          'service_id' => $service->id,
+                          'parent_id' => $checked_packages[$oldPackPath]->id,
+                          'name' => $tmp_package_name,
+                          'title' => $sp,
+                          'guard_name' => $guard,
+                          'position' => AclPackages::newPosition($service->id, $checked_packages[$oldPackPath]->id, $guard)
+                        ]);
+                      }
+                    }
+
+                    $oldPackPath = $tmp_package_path;
+                  }
+
+                  $perm = Permissions::upsert($permission_name, $permission_title, $service->id, $checked_packages[$tmp_package_path]->id, $guard);
+                } else {
+                  $perm = Permissions::upsert($permission_name, $permission_title, $service->id, $checked_packages[$package_path]->id, $guard);
+                }
+
                 $permission_ids[] = $perm->id;
               }
             }

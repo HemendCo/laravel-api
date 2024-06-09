@@ -12,9 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('acl_packages', function (Blueprint $table) {
-          $table->unsignedSmallInteger('id', true);
+          $table->unsignedInteger('id', true);
           $table->boolean('activated')->default('1')->unsigned()->comment('NULL=Inactivated 1=Activated');
           $table->unsignedSmallInteger('service_id')->index('service_id');
+          $table->unsignedInteger('parent_id')->nullable()->index('parent_id');
           $table->string('name', 120);
           $table->longText('title');
           $table->string('guard_name', 120);
