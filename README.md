@@ -87,11 +87,10 @@ $kernel = $app->make(Kernel::class);
 3. Empty the contents of the `routes/api.php` file and paste the following codes:
 ```php
 function callApiRoute($route_name) {
-    Route::any('/{service}/{version}/{package}/{endpoint}', 'Api')->where([
+    Route::any('/{service}/{version}/{endpoint}', 'Api')->where([
         'service' => '[a-z][a-zA-Z0-9]+',
         'version' => '[1-9][0-9]{0,1}',
-        'package' => '[a-z][a-zA-Z0-9]+',
-        'endpoint' => '([a-z][a-zA-Z0-9]+(\/?[a-z][a-zA-Z0-9]+){0,2})'
+        'endpoint' => '([a-z][a-zA-Z0-9]+(\/?[a-z][a-zA-Z0-9]+){0,3})'
     ])->name($route_name);
 }
 

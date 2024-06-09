@@ -8,10 +8,9 @@ use App\Http\Controllers\Controller;
 
 class Api extends Controller
 {
-    public function __invoke(Request $request, $service, $version, $package, $endpoint) {
+    public function __invoke(Request $request, $service, $version, $endpoint) {
         $service_name 	= Str::studly($service);
         $version_name 	= Str::studly($version);
-        $package_name 	  = Str::studly($package);
 
         $endpoints = explode('/', $endpoint);
         foreach ($endpoints as $k => $et) {
@@ -21,8 +20,7 @@ class Api extends Controller
 
         $serviceClass 	= 'App\Http\Controllers\Api\\' . $service_name;
         $versionClass 	= $serviceClass . '\Version_' . $version_name;
-        $packageClass 	= $versionClass . '\\' . $package_name;
-        $endpointClass 	= $packageClass . '\\' . $endpoint_name;
+        $endpointClass 	= $versionClass . '\\' . $endpoint_name;
 
         if(!class_exists($serviceClass)) {
             return response()->json([
@@ -35,13 +33,6 @@ class Api extends Controller
             return response()->json([
                 'status_code' => 'VERSION_INVALID',
                 'status_message' => sprintf(__('hemend.Version \'%s\' was not found on service \'%s\''), $version, $service_name)
-            ], 404);
-        }
-
-        if(!class_exists($packageClass)) {
-            return response()->json([
-                'status_code' => 'PACKAGE_INVALID',
-                'status_message' => sprintf(__('hemend.Package \'%s\' was not found on service \'%s\''), $package, $service_name .' v'. $version)
             ], 404);
         }
 
