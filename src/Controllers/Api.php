@@ -12,7 +12,12 @@ class Api extends Controller
         $service_name 	= Str::studly($service);
         $version_name 	= Str::studly($version);
         $package_name 	  = Str::studly($package);
-        $endpoint_name 	  = Str::studly($endpoint);
+
+        $endpoints = explode('/', $endpoint);
+        foreach ($endpoints as $k => $et) {
+          $endpoints[$k] 	  = Str::studly($et);
+        }
+        $endpoint_name = implode('\\', $endpoints);
 
         $serviceClass 	= 'App\Http\Controllers\Api\\' . $service_name;
         $versionClass 	= $serviceClass . '\Version_' . $version_name;

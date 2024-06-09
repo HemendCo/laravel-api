@@ -88,7 +88,11 @@ abstract class {{ class }} extends Service
         }
         // $endpoint = get_class($this);
         $endpoint = static::class;
-        $permission_untidy = array_slice(explode('\\', $endpoint), -2, 2, true);
+        $prefix = 'App\Http\Controllers\Api\\';
+
+        $endpoint_untidy = preg_replace('#^' . preg_quote($prefix) . '#', '', $endpoint);
+
+        $permission_untidy = array_slice(explode('\\', $endpoint_untidy), 2, 4, true);
         $permission = implode('.', $permission_untidy);
 
         return self::SERVICE . '.' . $permission;
