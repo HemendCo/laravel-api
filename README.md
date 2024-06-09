@@ -91,7 +91,7 @@ function callApiRoute($route_name) {
         'service' => '[a-z][a-zA-Z0-9]+',
         'version' => '[1-9][0-9]{0,1}',
         'package' => '[a-z][a-zA-Z0-9]+',
-        'endpoint' => '[a-z][a-zA-Z0-9]+'
+        'endpoint' => '([a-z][a-zA-Z0-9]+(\/?[a-z][a-zA-Z0-9]+){0,2})'
     ])->name($route_name);
 }
 
