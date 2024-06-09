@@ -2,10 +2,10 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }};
+use {{ version_namespace }};
 use Hemend\Api\Implements\Endpoint;
 
-class UserInfo extends Account implements Endpoint
+class UserInfo extends {{ version }} implements Endpoint
 {
     static public function title(): string
     {

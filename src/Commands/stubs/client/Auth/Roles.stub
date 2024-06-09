@@ -2,11 +2,11 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }};
+use {{ version_namespace }};
 use App\Models\AclRoles;
 use Hemend\Api\Implements\Endpoint;
 
-class Roles extends Auth implements Endpoint
+class Roles extends {{ version }} implements Endpoint
 {
     static public function defaultPermissionFlag()
     {

@@ -2,7 +2,7 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }};
+use {{ version_namespace }};
 use App\Models\AclRoles as Roles;
 use App\Models\Users;
 use App\Models\UsersAuthCodes;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
-class SignUp extends Auth implements Endpoint
+class SignUp extends {{ version }} implements Endpoint
 {
     use PassportToken;
 

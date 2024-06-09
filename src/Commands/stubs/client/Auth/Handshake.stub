@@ -2,10 +2,10 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }};
+use {{ version_namespace }};
 use Hemend\Api\Implements\Endpoint;
 
-class Handshake extends Auth implements Endpoint
+class Handshake extends {{ version }} implements Endpoint
 {
     static public function defaultPermissionFlag()
     {

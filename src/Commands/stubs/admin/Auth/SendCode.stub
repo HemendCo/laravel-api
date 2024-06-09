@@ -2,7 +2,7 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }};
+use {{ version_namespace }};
 use App\Models\UsersAuthCodes;
 use Hemend\Api\Implements\Endpoint;
 use Hemend\Library\Laravel\Sms;
@@ -10,7 +10,7 @@ use Hemend\Library\Numbers;
 use Illuminate\Support\Facades\Validator;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
-class SendCode extends Auth implements Endpoint
+class SendCode extends {{ version }} implements Endpoint
 {
     static public function defaultPermissionFlag()
     {

@@ -84,9 +84,4 @@ abstract class {{ class }} extends {{ service }}
     {
         return $this->auth()->user() ?? null;
     }
-
-    /**
-     * @return object
-     */
-    abstract static public function package(): object;
 }

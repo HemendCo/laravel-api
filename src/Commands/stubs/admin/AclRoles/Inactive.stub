@@ -2,12 +2,12 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }};
+use {{ version_namespace }};
 use App\Models\AclRoles as Roles;
 use Hemend\Api\Implements\Endpoint;
 use Illuminate\Support\Facades\Validator;
 
-class Inactive extends AclRoles implements Endpoint
+class Inactive extends {{ version }} implements Endpoint
 {
     static public function title(): string
     {

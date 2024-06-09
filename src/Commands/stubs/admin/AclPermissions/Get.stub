@@ -2,12 +2,12 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }};
+use {{ version_namespace }};
 use App\Models\AclPermissions as Permissions;
 use Hemend\Api\Implements\Endpoint;
 use Illuminate\Support\Facades\Validator;
 
-class Get extends AclPermissions implements Endpoint
+class Get extends {{ version }} implements Endpoint
 {
     static public function title(): string
     {

@@ -2,7 +2,7 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }};
+use {{ version_namespace }};
 use App\Models\Users;
 use App\Models\UsersAuthCodes;
 use Hemend\Api\Implements\Endpoint;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
-class ChangeMobileNumber extends Account implements Endpoint
+class ChangeMobileNumber extends {{ version }} implements Endpoint
 {
     use PassportToken;
 

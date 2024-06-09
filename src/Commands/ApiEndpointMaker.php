@@ -90,7 +90,7 @@ class ApiEndpointMaker extends GeneratorCommand
 
     $this->makeDirectory($path);
 
-    $this->files->put($path, $this->sortImports($this->buildClass($name, $package_namespace, $this->getFlag())));
+    $this->files->put($path, $this->sortImports($this->buildClass($name, $version_namespace, $this->getFlag())));
 
     $this->info($name.' created successfully.');
 
@@ -105,12 +105,12 @@ class ApiEndpointMaker extends GeneratorCommand
    *
    * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
    */
-  protected function buildClass($name, $package_namespace=null, $flag=null)
+  protected function buildClass($name, $version_namespace=null, $flag=null)
   {
     $stub = parent::buildClass($name);
-    $package_name = substr($package_namespace, strrpos( $package_namespace, '\\')+1);
+    $version_name = substr($version_namespace, strrpos( $version_namespace, '\\')+1);
 
-    $stub = str_replace(['{{ package }}', '{{ flag }}'], [$package_name, $flag], $stub);
+    $stub = str_replace(['{{ version }}', '{{ flag }}'], [$version_name, $flag], $stub);
 
     return $stub;
   }
@@ -135,8 +135,7 @@ class ApiEndpointMaker extends GeneratorCommand
   {
     $service_name = $this->createServiceName($this->getNameInput());
     $version_name = $this->createVersionName($this->argument('version'));
-    $package_name = $this->createPackageName($this->argument('package'));
-    return $rootNamespace.'\Http\Controllers\Api\\'.$service_name.'\\'.$version_name.'\\'.$package_name;
+    return $rootNamespace.'\Http\Controllers\Api\\'.$service_name.'\\'.$version_name;
   }
 
   protected function getFlag() {

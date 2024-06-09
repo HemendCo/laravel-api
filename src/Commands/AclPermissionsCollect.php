@@ -97,22 +97,22 @@ class AclPermissionsCollect extends Command
                 $clean = preg_replace('#^' . preg_quote($package_path . DIRECTORY_SEPARATOR) . '#', '', $file);
                 $namespace = preg_replace('/\.\w+$/', '', implode('\\', [$service_namespace, $version_dir_name, $package_name, $clean]));
 
-                $package_info = $namespace::package();
                 $permission_title = $namespace::title();
                 $permission_name = $service_name . '.' . $package_name . '.' . str_replace(['/', '\\'], '.', preg_replace('/\.\w+$/', '', $clean, PATHINFO_FILENAME));
 
+                $package_title = Strings::splitAtCapitalLetters($package_name);
                 if (!isset($checked_packages[$package_path])) {
                   $checked_packages[$package_path] = AclPackages::query()
                     ->where('service_id', '=', $service->id)
                     ->whereNull('parent_id')
-                    ->where('name', '=', $package_info->name)
+                    ->where('name', '=', $package_name)
                     ->where('guard_name', '=', $guard)
                     ->first();
                   if (!$checked_packages[$package_path]) {
                     $checked_packages[$package_path] = AclPackages::create([
                       'service_id' => $service->id,
-                      'name' => $package_info->name,
-                      'title' => trim($package_info->title),
+                      'name' => $package_name,
+                      'title' => $package_title,
                       'guard_name' => $guard,
                       'position' => AclPackages::newPosition($service->id, 0, $guard)
                     ]);
@@ -121,7 +121,6 @@ class AclPermissionsCollect extends Command
 
                 if (!$permission_title) {
                   $permission_title = Strings::splitAtCapitalLetters($filename);
-                  $param_name = Strings::splitAtCapitalLetters($package_info->name);
                   $permission_title_substr = trim(substr($permission_title, 0, strlen($param_name) + 1));
                   if (strtolower($permission_title_substr) === strtolower($param_name)) {
                     $permission_title = trim(substr($permission_title, strlen($param_name)));
@@ -146,11 +145,12 @@ class AclPermissionsCollect extends Command
                         ->where('guard_name', '=', $guard)
                         ->first();
                       if (!$checked_packages[$tmp_package_path]) {
+                        $tmp_package_title = Strings::splitAtCapitalLetters($sp);
                         $checked_packages[$tmp_package_path] = AclPackages::create([
                           'service_id' => $service->id,
                           'parent_id' => $checked_packages[$oldPackPath]->id,
                           'name' => $tmp_package_name,
-                          'title' => $sp,
+                          'title' => $tmp_package_title,
                           'guard_name' => $guard,
                           'position' => AclPackages::newPosition($service->id, $checked_packages[$oldPackPath]->id, $guard)
                         ]);

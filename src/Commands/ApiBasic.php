@@ -107,7 +107,7 @@ class ApiBasic extends GeneratorCommand
 
     $version_name = substr($version_namespace, strrpos( $version_namespace, '\\')+1);
 
-    return str_replace(['{{ version }}'], [$version_name], $stub);
+    return str_replace(['{{ version }}', '{{ version_namespace }}'], [$version_name, $version_namespace], $stub);
   }
 
   /**

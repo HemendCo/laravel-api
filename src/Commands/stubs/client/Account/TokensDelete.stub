@@ -2,12 +2,12 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }};
+use {{ version_namespace }};
 use Hemend\Api\Implements\Endpoint;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Passport\Token;
 
-class TokensDelete extends Account implements Endpoint
+class TokensDelete extends {{ version }} implements Endpoint
 {
     static public function title(): string
     {

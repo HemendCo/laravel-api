@@ -2,12 +2,12 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }};
+use {{ version_namespace }};
 use App\Models\AclPackages as Packages;
 use Hemend\Api\Implements\Endpoint;
 use Illuminate\Support\Facades\Validator;
 
-class Update extends AclPackages implements Endpoint
+class Update extends {{ version }} implements Endpoint
 {
     static public function title(): string
     {

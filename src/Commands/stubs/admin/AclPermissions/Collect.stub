@@ -2,12 +2,12 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }};
+use {{ version_namespace }};
 use Hemend\Api\Implements\Endpoint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 
-class Collect extends AclPermissions implements Endpoint
+class Collect extends {{ version }} implements Endpoint
 {
     static public function title(): string
     {
