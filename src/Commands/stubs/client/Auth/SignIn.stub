@@ -132,6 +132,14 @@ class SignIn extends {{ version }} implements Endpoint
         $token = $this->getBearerTokenByUser($user, [parent::SERVICE])['token'];
         $expiration = Carbon::now()->addSeconds($token['expires_in']);
 
+        if($user->hasRole('super-admin')) {
+            $permissions = ['*'];
+        } else {
+            $permissions = collect($user->getAllPermissions())
+                ->where('service_id', $this->service()->id)
+                ->pluck('name');
+        }
+
         return response()->json([
             'status_code' => 'OK',
             'data' => [
@@ -141,7 +149,9 @@ class SignIn extends {{ version }} implements Endpoint
                     'access_token' => $token['access_token'],
                     'refresh_token' => $token['refresh_token'],
                 ],
-                'user' => $user
+                'user' => $user,
+                'roles' => $user->getRoleNames(),
+                'permissions' => $permissions
             ],
         ]);
     }

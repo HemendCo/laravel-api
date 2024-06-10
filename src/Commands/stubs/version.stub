@@ -78,7 +78,7 @@ abstract class {{ class }} extends {{ service }}
     /**
     * Get the currently authenticated user.
     *
-    * @return \{{ namespacedUserModel }}|null
+    * @return \{{ namespacedUserModel }}|\Illuminate\Contracts\Auth\Authenticatable|null
     */
     public final function user()
     {

@@ -98,6 +98,9 @@ class AclPermissionsCollect extends Command
                 $namespace = preg_replace('/\.\w+$/', '', implode('\\', [$service_namespace, $version_dir_name, $package_name, $clean]));
 
                 $permission_title = $namespace::title();
+                if (!$permission_title) {
+                  $permission_title = ucfirst(strtolower(Strings::splitAtCapitalLetters($filename)));
+                }
                 $permission_name = $service_name . '.' . $package_name . '.' . str_replace(['/', '\\'], '.', preg_replace('/\.\w+$/', '', $clean, PATHINFO_FILENAME));
 
                 $package_title = Strings::splitAtCapitalLetters($package_name);
@@ -117,15 +120,6 @@ class AclPermissionsCollect extends Command
                       'position' => AclPackages::newPosition($service->id, 0, $guard)
                     ]);
                   }
-                }
-
-                if (!$permission_title) {
-                  $permission_title = Strings::splitAtCapitalLetters($filename);
-                  $permission_title_substr = trim(substr($permission_title, 0, strlen($param_name) + 1));
-                  if (strtolower($permission_title_substr) === strtolower($param_name)) {
-                    $permission_title = trim(substr($permission_title, strlen($param_name)));
-                  }
-                  $permission_title = ucfirst(strtolower($permission_title));
                 }
 
                 $subPackages = dirname($clean);
