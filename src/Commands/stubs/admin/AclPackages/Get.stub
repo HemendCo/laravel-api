@@ -68,7 +68,7 @@ class Get extends {{ version }} implements Endpoint
         return response()->json([
             'status_code' => 'OK',
             'data' => [
-                'packages' => $paginate->items(),
+                'items' => $paginate->items(),
                 'page' => [
                     'current' 	=> $paginate->currentPage(),
                     'last' 		=> $paginate->lastPage(),

@@ -68,7 +68,7 @@ class TokensGet extends {{ version }} implements Endpoint
         return response()->json([
             'status_code' => 'OK',
             'data' => [
-                'tokens' => $tokens,
+                'items' => $tokens,
                 'page' => [
                     'current' 	=> $paginate->currentPage(),
                     'last' 		=> $paginate->lastPage(),
