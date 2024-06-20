@@ -39,7 +39,7 @@ class Api extends Controller
         if(!class_exists($endpointClass)) {
           return response()->json([
             'status_code' => 'ENDPOINT_INVALID',
-            'status_message' => sprintf(__('hemend.Endpoint \'%s\' was not found on package \'%s\''), $endpoint, $service_name .' '. $package_name)
+            'status_message' => sprintf(__('hemend.Endpoint \'%s\' was not found on service \'%s\''), $endpoint, $service_name)
           ], 404);
         }
 

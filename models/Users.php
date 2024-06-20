@@ -26,9 +26,4 @@ class Users extends Authenticatable
 
     return $permissions;
   }
-
-  public function userRoles(): \Illuminate\Support\Collection
-  {
-    return $this->getRoleNames();
-  }
 }

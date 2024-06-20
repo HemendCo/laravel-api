@@ -10,7 +10,7 @@ class AclRoles extends SpatieRole
 {
   use AclHandler;
 
-  protected $hidden = ['guard_name'];
+  protected $hidden = ['guard_name', 'pivot'];
 
   protected static function findByParam(array $params = []): ?RoleContract
   {

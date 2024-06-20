@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('acl_packages', function (Blueprint $table) {
           $table->unsignedInteger('id', true);
-          $table->boolean('activated')->default('1')->unsigned()->comment('NULL=Inactivated 1=Activated');
+          $table->boolean('activated')->default('1')->unsigned()->nullable()->comment('NULL=Inactivated 1=Activated');
           $table->unsignedSmallInteger('service_id')->index('service_id');
           $table->unsignedInteger('parent_id')->nullable()->index('parent_id');
           $table->string('name', 120);
-          $table->longText('title');
+          $table->string('title', 120);
           $table->string('guard_name', 120);
           $table->unsignedSmallInteger('position');
           $table->timestamps();

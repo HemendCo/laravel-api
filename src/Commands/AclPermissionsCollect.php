@@ -96,6 +96,7 @@ class AclPermissionsCollect extends Command
 
                 $clean = preg_replace('#^' . preg_quote($package_path . DIRECTORY_SEPARATOR) . '#', '', $file);
                 $namespace = preg_replace('/\.\w+$/', '', implode('\\', [$service_namespace, $version_dir_name, $package_name, $clean]));
+                $namespace = str_replace('/', '\\', $namespace);
 
                 $permission_title = $namespace::title();
                 if (!$permission_title) {
