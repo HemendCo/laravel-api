@@ -4,7 +4,7 @@ namespace {{ namespace }};
 
 use {{ version_namespace }};
 use App\Models\UsersAuthCodes;
-use Hemend\Api\Implements\Endpoint;
+use Hemend\Api\Interfaces\Endpoint;
 use Hemend\Library\Laravel\Sms;
 use Hemend\Library\Numbers;
 use Illuminate\Support\Facades\Validator;

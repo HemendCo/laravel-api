@@ -4,7 +4,7 @@ namespace {{ namespace }};
 
 use {{ version_namespace }};
 use App\Models\AclRoles as Roles;
-use Hemend\Api\Implements\Endpoint;
+use Hemend\Api\Interfaces\Endpoint;
 use Illuminate\Support\Facades\Validator;
 
 class GetPermissions extends {{ version }} implements Endpoint

@@ -3,7 +3,7 @@
 namespace Hemend\Api\Traits;
 
 use Lcobucci\JWT\Token;
-use Hemend\Api\Implements\AccessTokenClaimEntityInterface;
+use Hemend\Api\Interfaces\AccessTokenClaimEntityInterface;
 use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 
 trait ClaimsAccessTokenTrait

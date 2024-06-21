@@ -3,7 +3,7 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
-use Hemend\Api\Implements\Endpoint;
+use Hemend\Api\Interfaces\Endpoint;
 
 class {{ class }} extends {{ package }} implements Endpoint
 {

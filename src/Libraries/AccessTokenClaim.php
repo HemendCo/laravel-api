@@ -2,7 +2,7 @@
 
 namespace Hemend\Api\Libraries;
 
-use Hemend\Api\Implements\AccessTokenClaimEntityInterface;
+use Hemend\Api\Interfaces\AccessTokenClaimEntityInterface;
 
 class AccessTokenClaim implements AccessTokenClaimEntityInterface
 {

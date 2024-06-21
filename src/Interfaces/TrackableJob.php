@@ -1,6 +1,6 @@
 <?php
 
-namespace Hemend\Api\Implements;
+namespace Hemend\Api\Interfaces;
 
 interface TrackableJob
 {

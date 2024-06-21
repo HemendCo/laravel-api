@@ -153,7 +153,7 @@ php artisan db:seed --class=UsersSeeder
 
 namespace App\Jobs;
 
-use Hemend\Api\Implements\TrackableJob;
+use Hemend\Api\Interfaces\TrackableJob;
 use Hemend\Api\Traits\TrackableQueue;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

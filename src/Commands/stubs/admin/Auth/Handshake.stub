@@ -3,7 +3,7 @@
 namespace {{ namespace }};
 
 use {{ version_namespace }};
-use Hemend\Api\Implements\Endpoint;
+use Hemend\Api\Interfaces\Endpoint;
 
 class Handshake extends {{ version }} implements Endpoint
 {

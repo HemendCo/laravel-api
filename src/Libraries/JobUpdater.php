@@ -2,7 +2,7 @@
 
 namespace Hemend\Api\Libraries;
 
-use Hemend\Api\Implements\TrackableJob;
+use Hemend\Api\Interfaces\TrackableJob;
 use Hemend\Api\Models\JobsTrackers;
 use Illuminate\Queue\Events\JobExceptionOccurred;
 use Illuminate\Queue\Events\JobFailed;

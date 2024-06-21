@@ -6,7 +6,7 @@ use {{ version_namespace }};
 use App\Models\AclRoles as Roles;
 use App\Models\Users;
 use App\Models\UsersAuthCodes;
-use Hemend\Api\Implements\Endpoint;
+use Hemend\Api\Interfaces\Endpoint;
 use Hemend\Api\Traits\PassportToken;
 use Hemend\Library\Numbers;
 use Illuminate\Support\Carbon;
