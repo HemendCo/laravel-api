@@ -12,7 +12,7 @@ class AclPermissions extends SpatiePermission
 {
   use AclHandler, PositionModel;
 
-  protected $hidden = ['guard_name', 'position'];
+  protected $hidden = ['guard_name', 'position', 'pivot'];
 
   /**
    * Find or create permission by its name (and optionally guardName).
