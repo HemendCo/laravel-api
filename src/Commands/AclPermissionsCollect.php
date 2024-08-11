@@ -89,7 +89,7 @@ class AclPermissionsCollect extends Command
 
             foreach ($packages as $package_path) {
               $package_name = basename($package_path);
-              $files = glob($package_path . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, '{,*,*/*,*/*/*,*/*/*/*}.php'), GLOB_BRACE);
+              $files = glob($package_path . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, '{,*,*/*,*/*/*,*/*/*/*,*/*/*/*/*,*/*/*/*/*/*}.php'), GLOB_BRACE);
 
               foreach ($files as $file) {
                 $filename = pathinfo($file, PATHINFO_FILENAME);
