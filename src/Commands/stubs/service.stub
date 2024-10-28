@@ -81,8 +81,6 @@ abstract class {{ class }} extends Service
         Passport::tokensExpireIn(now()->addDays(15));
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
-
-        return $this;
     }
 
     static public final function getPermissionName($name=null): string

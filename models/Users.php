@@ -4,11 +4,17 @@ namespace App\Models;
 
 use Hemend\Api\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Foundation\Auth\User as Authenticate;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
-class Users extends Authenticatable
+/**
+ * @property int    $not_deleted
+ * @property int    $blocked
+ * @property int    $suspended
+ * @property int    $activated
+ */
+class Users extends Authenticate
 {
   use HasRoles, HasApiTokens, HasFactory, Notifiable;
 
