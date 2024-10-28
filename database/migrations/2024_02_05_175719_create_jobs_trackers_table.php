@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jobs_trackers', function (Blueprint $table) {
+        Schema::create(env('API_DB_QUEUE_TRACKERS_TABLE', 'system_jobs_trackers'), function (Blueprint $table) {
             $table->id();
             $table->string('job_id')->index('job_id')->nullable();
             $table->string('type')->index('type');
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jobs_trackers');
+        Schema::dropIfExists(env('API_DB_QUEUE_TRACKERS_TABLE', 'system_jobs_trackers'));
     }
 };

@@ -47,6 +47,8 @@ class JobsTrackers extends Model
 {
     use HasFactory;
 
+    protected $table;
+
     protected $guarded = [];
 
     protected $appends = [
@@ -59,6 +61,14 @@ class JobsTrackers extends Model
         'is_retrying',
         'is_retrying',
     ];
+
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->table = config('api.job.trackers_table');
+    }
 
     public function getProgressPercentageAttribute(): float|int
     {

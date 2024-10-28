@@ -22,6 +22,7 @@ return [
     ],
 
     'job' => [
+        'trackers_table' => env('API_DB_QUEUE_TRACKERS_TABLE', 'system_jobs_trackers'),
         'event_manager' => \Hemend\Api\Foundation\EventManagers\DefaultEventManager::class,
         'model' => \Hemend\Api\Models\JobsTrackers::class,
         'db_connection' => null
