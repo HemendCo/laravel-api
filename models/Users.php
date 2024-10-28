@@ -14,6 +14,35 @@ class Users extends Authenticatable
 
   protected $guarded = [];
 
+  /**
+   * The attributes that should be hidden for serialization.
+   *
+   * @var array<int, string>
+   */
+  protected $hidden = [
+    'password',
+    'remember_token',
+  ];
+
+  /**
+   * Get the attributes that should be cast.
+   *
+   * @return array<string, string>
+   */
+  protected function casts(): array
+  {
+    return [
+      'not_deleted' => 'integer',
+      'blocked' => 'integer',
+      'suspended' => 'integer',
+      'activated' => 'integer',
+      'created_by' => 'integer',
+      'mobile_verified_at' => 'datetime',
+      'email_verified_at' => 'datetime',
+      'password' => 'hashed',
+    ];
+  }
+
   public function userPermissions($service_id): array|\Illuminate\Support\Collection
   {
     if($this->hasRole('super-admin')) {

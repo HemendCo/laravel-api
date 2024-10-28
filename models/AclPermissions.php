@@ -15,6 +15,20 @@ class AclPermissions extends SpatiePermission
   protected $hidden = ['guard_name', 'position', 'pivot'];
 
   /**
+   * Get the attributes that should be cast.
+   *
+   * @return array<string, string>
+   */
+  protected function casts(): array
+  {
+    return [
+      'service_id' => 'integer',
+      'package_id' => 'integer',
+      'position' => 'integer',
+    ];
+  }
+
+  /**
    * Find or create permission by its name (and optionally guardName).
    *
    * @param string $name

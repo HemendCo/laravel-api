@@ -14,6 +14,19 @@ class AclServices extends Model
   protected $guarded = [];
   protected $hidden = ['guard_name', 'position'];
 
+  /**
+   * Get the attributes that should be cast.
+   *
+   * @return array<string, string>
+   */
+  protected function casts(): array
+  {
+    return [
+      'activated' => 'integer',
+      'position' => 'integer',
+    ];
+  }
+
   static public function updatePosition(int $from, int $to, string $guard_name = null)
   {
     $guard_name = $guard_name ?? Guard::getDefaultName(static::class);

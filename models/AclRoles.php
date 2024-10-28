@@ -12,6 +12,19 @@ class AclRoles extends SpatieRole
 
   protected $hidden = ['guard_name', 'pivot'];
 
+  /**
+   * Get the attributes that should be cast.
+   *
+   * @return array<string, string>
+   */
+  protected function casts(): array
+  {
+    return [
+      'activated' => 'integer',
+      'is_default' => 'integer',
+    ];
+  }
+
   protected static function findByParam(array $params = []): ?RoleContract
   {
     $query = static::query();

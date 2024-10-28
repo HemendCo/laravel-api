@@ -20,4 +20,16 @@ class UsersAuthCodes extends Model
     'code',
     'hash',
   ];
+
+  /**
+   * Get the attributes that should be cast.
+   *
+   * @return array<string, string>
+   */
+  protected function casts(): array
+  {
+    return [
+      'used_at' => 'datetime',
+    ];
+  }
 }
