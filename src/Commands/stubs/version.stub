@@ -3,85 +3,87 @@
 namespace {{ namespace }};
 
 use {{ namespace }};
+use {{ namespacedUserModel }};
+use Illuminate\Contracts\Auth\Authenticatable;
 
 abstract class {{ class }} extends {{ service }}
 {
-    const VERSION = '{{ version }}';
+  const VERSION = '{{ version }}';
 
-    protected $token = null;
-    protected $has_access = null;
+  protected ?string $token = null;
+  protected ?bool $has_access = null;
 
-    /**
-    * @return string $version
-    */
-    public final function getVersion()
-    {
-        return self::VERSION;
-    }
+  /**
+   * @return string
+   */
+  public final function getVersion(): string
+  {
+    return self::VERSION;
+  }
 
-    /**
-    * @return boolean
-    */
-    protected final function authorization()
-    {
-        try {
-            $this->has_access = false;
+  /**
+   * @return boolean
+   */
+  protected final function authorization(): bool
+  {
+    try {
+      $this->has_access = false;
 
-            if($this->getRequest()->bearerToken()) {
-                $user = $this->user();
-                if($user &&
-                    $user->tokenCan(parent::SERVICE) &&
-                    $user->not_deleted &&
-                    !$user->blocked &&
-                    !$user->suspended &&
-                    $user->activated &&
-                    $this->user()->can(static::getPermissionName())
-                ) {
-                    $this->token = $this->getRequest()->bearerToken();
-                    return ($this->has_access = true);
-                }
-            } else {
-                $role = \App\Models\AclRoles::findById(1); // Public Role
-                if($role->hasPermissionTo(static::getPermissionName())) {
-                    return ($this->has_access = true);
-                }
-            }
-        } catch (\Exception $e) {}
+      if($this->getRequest()->bearerToken()) {
+        $user = $this->user();
+        if($user &&
+          $user->tokenCan(parent::SERVICE) &&
+          $user->not_deleted &&
+          !$user->blocked &&
+          !$user->suspended &&
+          $user->activated &&
+          $this->user()->can(static::getPermissionName())
+        ) {
+          $this->token = $this->getRequest()->bearerToken();
+          return ($this->has_access = true);
+        }
+      } else {
+        $role = \App\Models\AclRoles::findById(1); // Public Role
+        if($role->hasPermissionTo(static::getPermissionName())) {
+          return ($this->has_access = true);
+        }
+      }
+    } catch (\Exception $e) {}
 
-        return false;
-    }
+    return false;
+  }
 
-    /**
-    * @return boolean
-    */
-    public final function hasAccess()
-    {
-        return $this->has_access;
-    }
+  /**
+   * @return bool|null
+   */
+  public final function hasAccess(): ?bool
+  {
+    return $this->has_access;
+  }
 
-    /**
-    * @return boolean
-    */
-    public final function getToken()
-    {
-        return $this->token;
-    }
+  /**
+   * @return string|null
+   */
+  public final function getToken(): ?string
+  {
+    return $this->token;
+  }
 
-    /**
-    * @return boolean
-    */
-    public final function hasIdentity()
-    {
-        return !!$this->token && !!$this->user();
-    }
+  /**
+   * @return boolean
+   */
+  public final function hasIdentity(): bool
+  {
+    return !!$this->token && !!$this->user();
+  }
 
-    /**
-    * Get the currently authenticated user.
-    *
-    * @return \{{ namespacedUserModel }}|\Illuminate\Contracts\Auth\Authenticatable|null
-    */
-    public final function user()
-    {
-        return $this->auth()->user() ?? null;
-    }
+  /**
+   * Get the currently authenticated user.
+   *
+   * @return Users|Authenticatable|null
+   */
+  public final function user(): Users|Authenticatable|null
+  {
+    return $this->auth()->user() ?? null;
+  }
 }

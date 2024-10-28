@@ -3,6 +3,10 @@
 namespace {{ namespace }};
 
 use Hemend\Api\Libraries\Service;
+use App\Models\AclServices;
+use Illuminate\Contracts\Auth\Factory;
+use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Http\Request;
 use Laravel\Passport\Passport;
 
@@ -11,7 +15,7 @@ abstract class {{ class }} extends Service
     const GUARD = '{{ guard }}';
     const SERVICE = '{{ class }}';
 
-    static private $service = null;
+    static private ?AclServices $service = null;
 
     /**
     * @var Request $request
@@ -28,7 +32,7 @@ abstract class {{ class }} extends Service
     /**
     * @return string $service
     */
-    protected final function getService()
+    protected final function getService(): string
     {
         return self::SERVICE;
     }
@@ -36,16 +40,16 @@ abstract class {{ class }} extends Service
     /**
     * @return Request
     */
-    protected final function getRequest()
+    protected final function getRequest(): Request
     {
         return $this->request;
     }
 
     /**
     * @param Request $request
-    * @return self
+    * @return void
     */
-    private function setRequest(Request $request)
+    private function setRequest(Request $request): void
     {
         $this->request = $request;
         return $this;
@@ -54,9 +58,9 @@ abstract class {{ class }} extends Service
     /**
     * Get the available auth instance.
     *
-    * @return \Illuminate\Contracts\Auth\Factory|\Illuminate\Contracts\Auth\Guard|\Illuminate\Contracts\Auth\StatefulGuard
+    * @return Factory|Guard|StatefulGuard
     */
-    public final function auth()
+    public final function auth(): Guard|StatefulGuard|Factory
     {
         return auth(self::GUARD);
     }
@@ -81,16 +85,14 @@ abstract class {{ class }} extends Service
         return $this;
     }
 
-    static public final function getPermissionName($name=null)
+    static public final function getPermissionName($name=null): string
     {
-        if($name) {
+        if($name != null) {
             return self::SERVICE . $name;
         }
-        // $endpoint = get_class($this);
-        $endpoint = static::class;
         $prefix = 'App\Http\Controllers\Api\\';
 
-        $endpoint_untidy = preg_replace('#^' . preg_quote($prefix) . '#', '', $endpoint);
+        $endpoint_untidy = preg_replace('#^' . preg_quote($prefix) . '#', '', static::class);
 
         $permission_untidy = array_slice(explode('\\', $endpoint_untidy), 2, 4, true);
         $permission = implode('.', $permission_untidy);
@@ -99,12 +101,12 @@ abstract class {{ class }} extends Service
     }
 
     /**
-     * @return \App\Models\AclServices
+     * @return ?AclServices
      */
-    static public final function service(): ?\App\Models\AclServices
+    static public final function service(): ?AclServices
     {
         if(self::$service === null) {
-            self::$service = \App\Models\AclServices::query()
+            self::$service = AclServices::query()
                 ->where('name', self::SERVICE)
                 ->first();
         }
@@ -115,5 +117,5 @@ abstract class {{ class }} extends Service
     /**
     * @return boolean
     */
-    abstract protected function authorization();
+    abstract protected function authorization(): bool;
 }
