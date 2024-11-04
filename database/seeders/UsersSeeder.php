@@ -15,9 +15,10 @@ class UsersSeeder extends Seeder
      */
     public function run()
     {
-        $publicRole = Roles::where('name', 'public')->first();
-        if (!Roles::where('name', 'public')->exists()) {
-            $publicRole = Roles::create([
+        $publicRole = Roles::query()->where('name', 'public')->first();
+        if (!Roles::query()->where('name', 'public')->exists()) {
+            $publicRole = Roles::query()->create([
+                'is_deletable' => '0',
                 'activated' => '1',
                 'name' => 'public',
                 'title' => 'Public',
@@ -25,8 +26,9 @@ class UsersSeeder extends Seeder
             ]);
         }
 
-        if (!Roles::where('name', 'super-admin')->exists()) {
-            Roles::create([
+        if (!Roles::query()->where('name', 'super-admin')->exists()) {
+            Roles::query()->create([
+                'is_deletable' => '0',
                 'activated' => '1',
                 'name' => 'super-admin',
                 'title' => 'Super Admin',
@@ -34,9 +36,9 @@ class UsersSeeder extends Seeder
             ]);
         }
 
-        $adminRole = Roles::where('name', 'admin')->first();
-        if (!Roles::where('name', 'admin')->exists()) {
-            $adminRole = Roles::create([
+        $adminRole = Roles::query()->where('name', 'admin')->first();
+        if (!Roles::query()->where('name', 'admin')->exists()) {
+            $adminRole = Roles::query()->create([
                 'activated' => '1',
                 'name' => 'admin',
                 'title' => 'Admin',
@@ -44,9 +46,9 @@ class UsersSeeder extends Seeder
             ]);
         }
 
-        $userRole = Roles::where('name', 'user')->first();
+        $userRole = Roles::query()->where('name', 'user')->first();
         if (!$userRole) {
-            $userRole = Roles::create([
+            $userRole = Roles::query()->create([
                 'activated' => '1',
                 'is_default' => '1',
                 'name' => 'user',
@@ -55,8 +57,8 @@ class UsersSeeder extends Seeder
             ]);
         }
 
-        if (!\App\Models\Users::where('mobile', '09356449579')->exists()) {
-            $admin = \App\Models\Users::create([
+        if (!\App\Models\Users::query()->where('mobile', '09356449579')->exists()) {
+            $admin = \App\Models\Users::query()->create([
                 'not_deleted' => '1',
                 'activated' => '1',
                 'first_name' => 'بلال',

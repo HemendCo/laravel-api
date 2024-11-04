@@ -20,6 +20,8 @@ class AclRoles extends SpatieRole
   protected function casts(): array
   {
     return [
+      'not_deleted' => 'integer',
+      'is_deletable' => 'integer',
       'activated' => 'integer',
       'is_default' => 'integer',
     ];
@@ -41,6 +43,7 @@ class AclRoles extends SpatieRole
     }
 
     $query->where('activated', '1');
+    $query->whereNull('not_deleted');
 
     foreach ($params as $key => $value) {
       $query->where($key, $value);
