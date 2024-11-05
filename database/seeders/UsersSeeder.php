@@ -16,7 +16,7 @@ class UsersSeeder extends Seeder
     public function run()
     {
         $publicRole = Roles::query()->where('name', 'public')->first();
-        if (!Roles::query()->where('name', 'public')->exists()) {
+        if (!$publicRole) {
             $publicRole = Roles::query()->create([
                 'is_deletable' => '0',
                 'activated' => '1',
