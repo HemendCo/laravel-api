@@ -43,7 +43,7 @@ class AclRoles extends SpatieRole
     }
 
     $query->where('activated', '1');
-    $query->whereNull('not_deleted');
+    $query->where('not_deleted', '1');
 
     foreach ($params as $key => $value) {
       $query->where($key, $value);
