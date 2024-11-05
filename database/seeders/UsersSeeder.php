@@ -37,7 +37,7 @@ class UsersSeeder extends Seeder
         }
 
         $adminRole = Roles::query()->where('name', 'admin')->first();
-        if (!Roles::query()->where('name', 'admin')->exists()) {
+        if (!$adminRole) {
             $adminRole = Roles::query()->create([
                 'activated' => '1',
                 'name' => 'admin',
