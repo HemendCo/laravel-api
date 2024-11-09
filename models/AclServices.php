@@ -6,6 +6,7 @@ use Hemend\Api\Traits\AclHandler;
 use Hemend\Library\Laravel\Traits\PositionModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Guard;
 
 class AclServices extends Model
 {
