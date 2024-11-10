@@ -18,7 +18,7 @@ class UsersSeeder extends Seeder
         $publicRole = Roles::query()->where('name', 'public')->first();
         if (!$publicRole) {
             $publicRole = Roles::query()->create([
-                'is_deletable' => '0',
+                'is_protected' => '1',
                 'activated' => '1',
                 'name' => 'public',
                 'title' => 'Public',
@@ -28,7 +28,7 @@ class UsersSeeder extends Seeder
 
         if (!Roles::query()->where('name', 'super-admin')->exists()) {
             Roles::query()->create([
-                'is_deletable' => '0',
+                'is_protected' => '1',
                 'activated' => '1',
                 'name' => 'super-admin',
                 'title' => 'Super Admin',

@@ -20,7 +20,7 @@ class AclRoles extends SpatieRole
   {
     return [
       'not_deleted' => 'integer',
-      'is_deletable' => 'integer',
+      'is_protected' => 'integer',
       'activated' => 'integer',
       'is_default' => 'integer',
     ];
