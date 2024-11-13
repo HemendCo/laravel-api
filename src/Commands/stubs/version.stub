@@ -4,6 +4,7 @@ namespace {{ namespace }};
 
 use {{ namespace }};
 use {{ namespacedUserModel }};
+use Hemend\Api\Enums\AuthTokenType;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 abstract class {{ class }} extends {{ service }}
@@ -29,7 +30,7 @@ abstract class {{ class }} extends {{ service }}
     try {
       $this->has_access = false;
 
-      if($this->getRequest()->bearerToken()) {
+      if($this->getRequest()->header('X-Token-Type') == AuthTokenType::AccessToken->value && $this->getRequest()->bearerToken()) {
         $user = $this->user();
         if($user &&
           $user->tokenCan(parent::SERVICE) &&
