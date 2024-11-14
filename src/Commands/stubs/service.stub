@@ -78,8 +78,8 @@ abstract class {{ class }} extends Service
             self::SERVICE
         ]);
 
-        Passport::tokensExpireIn(now()->addDays(15));
-        Passport::refreshTokensExpireIn(now()->addDays(30));
+        Passport::tokensExpireIn(now()->addHours(1));
+        Passport::refreshTokensExpireIn(now()->addDays(7));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
     }
 
