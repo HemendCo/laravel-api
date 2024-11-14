@@ -32,7 +32,7 @@ class RefreshToken extends {{ version }} implements Endpoint
         }
 
         try {
-            $authTokens = $this->regenerateBearerTokenByRefreshToken($input['refresh_token']);
+            $authTokens = $this->regenerateBearerTokenByRefreshToken($this->getRequest()->bearerToken());
             $token = $authTokens['token'];
             // $expiration = Carbon::now()->addSeconds($token['expires_in']);
             $expiration = $authTokens['passport_token']['refresh_token']->getExpiryDateTime()->format('Y-m-d\TH:i:s.u\Z');
