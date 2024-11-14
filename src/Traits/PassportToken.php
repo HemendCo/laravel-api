@@ -292,6 +292,9 @@ trait PassportToken
             $bearerToken = json_decode($bearerToken->getBody()->__toString(), true);
         }
 
-        return $bearerToken;
+        return [
+            'passport_token' => $passportToken,
+            'token' => $bearerToken
+        ];
     }
 }

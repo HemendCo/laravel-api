@@ -171,8 +171,10 @@ class SignUp extends {{ version }} implements Endpoint
         
         $user->assignRole($role->name);
 
-        $token = $this->getBearerTokenByUser($user, [parent::SERVICE])['token'];
-        $expiration = Carbon::now()->addSeconds($token['expires_in']);
+        $authTokens = $this->getBearerTokenByUser($user, [parent::SERVICE]);
+        $token = $authTokens['token'];
+        // $expiration = Carbon::now()->addSeconds($token['expires_in']);
+        $expiration = $authTokens['passport_token']['refresh_token']->getExpiryDateTime()->format('Y-m-d\TH:i:s.u\Z');
 
         if($user->hasRole('super-admin')) {
             $permissions = ['*'];
