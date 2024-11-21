@@ -2,8 +2,8 @@
 
 namespace {{ namespace }};
 
-use Hemend\Api\Libraries\Service;
 use App\Models\AclServices;
+use Hemend\Api\Libraries\Service;
 use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\StatefulGuard;
@@ -52,7 +52,6 @@ abstract class {{ class }} extends Service
     private function setRequest(Request $request): void
     {
         $this->request = $request;
-        return $this;
     }
 
     /**
