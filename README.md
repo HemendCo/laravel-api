@@ -140,6 +140,11 @@ php artisan make:api-service [Service]
 php artisan make:api-version [Service] [Version]
 ```
 
+#### Collecting endpoints and storing them in the database
+```php
+php artisan api:acl-collect [Service]
+```
+
 ## Other settings
 1. After installing the package and doing the above, you need to publish and migrate to the database:
 ```shell
