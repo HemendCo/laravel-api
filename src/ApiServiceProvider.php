@@ -2,6 +2,7 @@
 
 namespace Hemend\Api;
 
+use Hemend\Api\Providers\AppServiceProvider;
 use Hemend\Api\Providers\AuthServiceProvider;
 use Hemend\Api\Providers\ConsoleServiceProvider;
 use Hemend\Api\Providers\RouteServiceProvider;
@@ -19,6 +20,7 @@ class ApiServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
 
+        $this->app->register(AppServiceProvider::class);
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(ConsoleServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
