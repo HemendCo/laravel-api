@@ -4,15 +4,23 @@ namespace App\Models;
 
 use Hemend\Api\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticate;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
 /**
- * @property int    $not_deleted
- * @property int    $blocked
- * @property int    $suspended
- * @property int    $activated
+ * @property int       $not_deleted
+ * @property int       $blocked
+ * @property int       $suspended
+ * @property int       $activated
+ * @property string    $name
+ * @property string    $first_name
+ * @property string    $last_name
+ * @property string    $username
+ * @property string    $national_code
+ * @property string    $mobile
+ * @property string    $email
  */
 class Users extends Authenticate
 {
@@ -20,12 +28,19 @@ class Users extends Authenticate
 
   protected $guarded = [];
 
+  protected $appends = ['name'];
+
   /**
    * The attributes that should be hidden for serialization.
    *
    * @var array<int, string>
    */
   protected $hidden = [
+    'username',
+    'created_by',
+    'national_code',
+    'mobile',
+    'email',
     'password',
     'remember_token',
   ];
@@ -49,6 +64,11 @@ class Users extends Authenticate
     ];
   }
 
+  public function getNameAttribute(): string
+  {
+      return trim($this->first_name . ' ' . $this->last_name);
+  }
+
   public function userPermissions($service_id): array|\Illuminate\Support\Collection
   {
     if($this->hasRole('super-admin')) {
@@ -60,5 +80,10 @@ class Users extends Authenticate
     }
 
     return $permissions;
+  }
+
+  public function creator(): BelongsTo
+  {
+      return $this->belongsTo(self::class, 'created_by');
   }
 }

@@ -151,7 +151,7 @@ class SignIn extends {{ version }} implements Endpoint
                     'access_token' => $token['access_token'],
                     'refresh_token' => $token['refresh_token'],
                 ],
-                'user' => $user,
+                'account' => $user->makeVisible(['national_code', 'mobile'])->makeHidden(['permissions', 'roles']),
                 'roles' => $user->getRoleNames(),
                 'permissions' => $permissions
             ],

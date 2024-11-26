@@ -16,7 +16,7 @@ class UserInfo extends {{ version }} implements Endpoint
     {
         return response()->json([
             'status_code' => 'OK',
-            'data' => $this->user(),
+            'data' => $this->user()->makeVisible(['national_code', 'mobile']),
         ]);
     }
 }

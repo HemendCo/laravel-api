@@ -19,6 +19,7 @@ class Handshake extends {{ version }} implements Endpoint
 
     public function __invoke()
     {
+        $account = null;
         if ($this->user()) {
             $roles = $this->user()->getRoleNames();
             if ($this->user()->hasRole('super-admin')) {
@@ -28,6 +29,8 @@ class Handshake extends {{ version }} implements Endpoint
                     ->where('service_id', $this->service()->id)
                     ->pluck('name');
             }
+
+            $account = $this->user()->makeVisible(['national_code', 'mobile'])->makeHidden(['permissions', 'roles']);
         } else {
             $role = \App\Models\AclRoles::query()
                 ->with(['permissions' => function($q) {
@@ -44,6 +47,7 @@ class Handshake extends {{ version }} implements Endpoint
             'data' => [
                 'roles' => $roles,
                 'permissions' => $permissions,
+                ...($account ? [ 'account' => $account ] : [])
             ],
         ]);
     }
