@@ -6,6 +6,8 @@ use Hemend\Api\Traits\AclHandler;
 use Hemend\Library\Laravel\Traits\PositionModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Permission\Guard;
 
 class AclServices extends Model
@@ -49,7 +51,11 @@ class AclServices extends Model
     return (static::lastPosition($guard_name) ?? 0) + 1;
   }
 
-  public function packages() {
+  public function packages(): HasMany {
     return $this->hasMany(AclPackages::class, 'service_id', 'id');
+  }
+
+  public function roles(): BelongsToMany {
+    return $this->belongsToMany(AclRoles::class, 'acl_service_has_roles', 'service_id', 'role_id');
   }
 }
