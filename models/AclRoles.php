@@ -27,6 +27,17 @@ class AclRoles extends SpatieRole
     ];
   }
 
+  /**
+   * Check if the role is associated with a specific service.
+   *
+   * @param string $serviceName
+   * @return bool
+   */
+  public function hasRoleInService(string $serviceName): bool
+  {
+    return $this->services()->where('name', $serviceName)->exists();
+  }
+
   public function services(): BelongsToMany
   {
       return $this->belongsToMany(AclServices::class, 'acl_service_has_roles', 'role_id', 'service_id');

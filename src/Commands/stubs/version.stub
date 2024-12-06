@@ -38,12 +38,16 @@ abstract class {{ class }} extends {{ service }}
           !$user->blocked &&
           !$user->suspended &&
           $user->activated &&
+          $this->user()->hasRoleInService($this->getService()) &&
           $this->user()->can(static::getPermissionName())
         ) {
           $this->token = $this->getRequest()->bearerToken();
           return ($this->has_access = true);
         }
       } else {
+        /**
+         * @var \App\Models\AclRoles $role
+         */
         $role = \App\Models\AclRoles::findById(1); // Public Role
         if($role->hasPermissionTo(static::getPermissionName())) {
           return ($this->has_access = true);

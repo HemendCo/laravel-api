@@ -82,6 +82,20 @@ class Users extends Authenticate
     return $permissions;
   }
 
+  /**
+   * Check if the user has any roles in a specific service.
+   *
+   * @param string $serviceName
+   * @return bool
+   */
+  public function hasRoleInService(string $serviceName): bool
+  {
+    return $this->hasRole('super-admin') || $this->roles()
+      ->whereHas('services', function ($query) use ($serviceName) {
+        $query->where('name', $serviceName);
+      })->exists();
+  }
+
   public function creator(): BelongsTo
   {
       return $this->belongsTo(self::class, 'created_by');
