@@ -159,10 +159,33 @@ class SignUp extends {{ version }} implements Endpoint
             ->update([
                 'used_at' => date('Y-m-d H:i:s'),
             ]);
-        
+
+        /**
+        * @var Roles $role
+        */
         $role = Roles::select('name')
-            ->where('id', request()->input('role_id'))
+            ->when(
+                !!request()->input('role_id'),
+                fn ($q) => $q->where('id', request()->input('role_id')),
+                fn ($q) => $q->whereNotIn('id', [1, 2])
+                            ->where('activated', 1)
+                            ->where('is_default', 1),
+            )
             ->first();
+
+        if(!$role) {
+            return response()->json([
+                'status_code' => 'ROLE_ID_INVALID',
+                'status_message' => __('hemend.The role id is invalid')
+            ], 400);
+        }
+
+        if(!$role->hasRoleInService($this->getService())) {
+            return response()->json([
+                'status_code' => 'ACCESS_DENIED',
+                'status_message' => __('hemend.You do not have access to register.')
+            ], 403);
+        }
 
         $user = Users::create([
             'activated' => '1',

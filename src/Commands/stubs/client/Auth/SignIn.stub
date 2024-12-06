@@ -106,6 +106,9 @@ class SignIn extends {{ version }} implements Endpoint
             ], 403);
         }
 
+        /**
+        * @var Users $user
+        */
         $user = Users::where('mobile', $mobile)
             ->where('not_deleted', '1')
             ->first();
@@ -122,7 +125,7 @@ class SignIn extends {{ version }} implements Endpoint
                 'used_at' => date('Y-m-d H:i:s'),
             ]);
 
-        if($user->blocked || $user->suspended || !$user->activated) {
+        if($user->blocked || $user->suspended || !$user->activated || !$user->hasRoleInService($this->getService())) {
             return response()->json([
                 'status_code' => 'ACCESS_DENIED',
                 'status_message' => __('hemend.You do not have access to sign in.')

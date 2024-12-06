@@ -3,6 +3,7 @@
 namespace {{ namespace }};
 
 use {{ version_namespace }};
+use App\Models\Users;
 use Hemend\Api\Enums\AuthTokenType;
 use Hemend\Api\Interfaces\Endpoint;
 use Hemend\Api\Traits\PassportToken;
@@ -33,6 +34,20 @@ class RefreshToken extends {{ version }} implements Endpoint
 
         try {
             $authTokens = $this->regenerateBearerTokenByRefreshToken($this->getRequest()->bearerToken());
+            $userId = $authTokens['passport_token']['access_token']->getUserIdentifier();
+
+            $user = Users::query()
+              ->where('id', $userId)
+              ->where('not_deleted', '1')
+              ->first();
+
+            if(!$user || $user->blocked || $user->suspended || !$user->activated || !$user->hasRoleInService($this->getService())) {
+              return response()->json([
+                'status_code' => 'ACCESS_DENIED',
+                'status_message' => __('hemend.You do not have access to sign in.')
+              ], 403);
+            }
+            
             $token = $authTokens['token'];
             // $expiration = Carbon::now()->addSeconds($token['expires_in']);
             $expiration = $authTokens['passport_token']['refresh_token']->getExpiryDateTime()->format('Y-m-d\TH:i:s.u\Z');
