@@ -163,7 +163,7 @@ class SignUp extends {{ version }} implements Endpoint
         /**
         * @var Roles $role
         */
-        $role = Roles::select('name')
+        $role = Roles::select('id', 'name')
             ->when(
                 !!request()->input('role_id'),
                 fn ($q) => $q->where('id', request()->input('role_id')),
