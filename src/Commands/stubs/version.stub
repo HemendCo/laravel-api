@@ -12,6 +12,7 @@ abstract class {{ class }} extends {{ service }}
   const VERSION = '{{ version }}';
 
   protected ?string $token = null;
+  protected ?bool $has_authorized = null;
   protected ?bool $has_access = null;
 
   /**
@@ -22,47 +23,60 @@ abstract class {{ class }} extends {{ service }}
     return self::VERSION;
   }
 
-  /**
-   * @return boolean
-   */
-  protected final function authorization(): bool
+  protected final function authorization()
   {
-    try {
-      $this->has_access = false;
+    if($this->has_authorized === null) {
+      $this->has_authorized = false;
 
-      if($this->getRequest()->header('X-Token-Type') == AuthTokenType::AccessToken->value && $this->getRequest()->bearerToken()) {
-        $user = $this->user();
-        if($user &&
-          $user->tokenCan(parent::SERVICE) &&
-          $user->not_deleted &&
-          !$user->blocked &&
-          !$user->suspended &&
-          $user->activated &&
-          $this->user()->hasRoleInService($this->getService()) &&
-          $this->user()->can(static::getPermissionName())
-        ) {
-          $this->token = $this->getRequest()->bearerToken();
-          return ($this->has_access = true);
+      try {
+        if($this->getRequest()->header('X-Token-Type') == AuthTokenType::AccessToken->value && $this->getRequest()->bearerToken()) {
+          $user = $this->user();
+          if($user &&
+            $user->tokenCan(parent::SERVICE) &&
+            $user->not_deleted &&
+            !$user->blocked &&
+            !$user->suspended &&
+            $user->activated &&
+            $this->user()->hasRoleInService($this->getService())
+          ) {
+            $this->token = $this->getRequest()->bearerToken();
+            $this->has_authorized = true;
+          }
         }
-      } else {
-        /**
-         * @var \App\Models\AclRoles $role
-         */
-        $role = \App\Models\AclRoles::findById(1); // Public Role
-        if($role->hasPermissionTo(static::getPermissionName())) {
-          return ($this->has_access = true);
-        }
-      }
-    } catch (\Exception $e) {}
+      } catch (\Exception $e) {}
+    }
 
-    return false;
+    return $this->has_authorized;
   }
 
   /**
-   * @return bool|null
+   * @return bool
    */
-  public final function hasAccess(): ?bool
+  public final function hasAuthorized(): bool
   {
+    return !!$this->has_authorized;
+  }
+
+  /**
+   * @return bool
+   */
+  public final function hasAccess(): bool
+  {
+    if($this->has_access === null) {
+      $this->has_access = false;
+
+      try {
+        if($this->hasIdentity() && $this->user()->can(static::getPermissionName())) {
+          $this->has_access = true;
+        } else {
+          $role = \App\Models\AclRoles::findById(1); // Public Role
+          if($role->hasPermissionTo(static::getPermissionName())) {
+            $this->has_access = true;
+          }
+        }
+      } catch (\Exception $e) {}
+    }
+
     return $this->has_access;
   }
 

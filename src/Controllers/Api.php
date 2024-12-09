@@ -62,11 +62,18 @@ class Api extends Controller
         */
 
         if (method_exists($api, '__invoke')) {
-            if(!$api->hasAccess()) {
+            if(!$api->hasAuthorized() && in_array($api->defaultPermissionFlag(), [$api::PERMISSION_FLAG_PRIVATE, $api::PERMISSION_FLAG_PRIVATE_ONLY])) {
                 return response()->json([
                     'status_code' => 'UNAUTHORIZED',
                     'status_message' => __('hemend.Authentication error occurred'),
                 ], 401);
+            }
+
+            if(!$api->hasAccess()) {
+                return response()->json([
+                    'status_code' => 'ACCESS_DENIED',
+                    'status_message' => __('hemend.You do not have access to endpoint.')
+                ], 403);
             }
 
             try {

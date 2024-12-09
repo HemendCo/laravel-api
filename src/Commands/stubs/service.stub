@@ -111,8 +111,15 @@ abstract class {{ class }} extends Service
         return self::$service;
     }
 
+    abstract protected function authorization();
+
     /**
     * @return boolean
     */
-    abstract protected function authorization(): bool;
+    abstract protected function hasAuthorized(): bool;
+
+    /**
+    * @return boolean
+    */
+    abstract protected function hasAccess(): bool;
 }
