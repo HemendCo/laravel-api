@@ -29,7 +29,9 @@ abstract class {{ class }} extends {{ service }}
       $this->has_authorized = false;
 
       try {
-        if($this->getRequest()->header('X-Token-Type') == AuthTokenType::AccessToken->value && $this->getRequest()->bearerToken()) {
+        $this->token = $this->getRequest()->bearerToken();
+        
+        if($this->getRequest()->header('X-Token-Type') == AuthTokenType::AccessToken->value && $this->token) {
           $user = $this->user();
           if($user &&
             $user->tokenCan(parent::SERVICE) &&
@@ -39,7 +41,6 @@ abstract class {{ class }} extends {{ service }}
             $user->activated &&
             $this->user()->hasRoleInService($this->getService())
           ) {
-            $this->token = $this->getRequest()->bearerToken();
             $this->has_authorized = true;
           }
         }
@@ -78,6 +79,14 @@ abstract class {{ class }} extends {{ service }}
     }
 
     return $this->has_access;
+  }
+
+  /**
+   * @return boolean
+   */
+  public final function hasToken(): bool
+  {
+    return !!$this->token;
   }
 
   /**

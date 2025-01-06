@@ -19,6 +19,13 @@ class Handshake extends {{ version }} implements Endpoint
 
     public function __invoke()
     {
+        if($this->hasToken() && !$this->hasAuthorized()) {
+            return response()->json([
+                'status_code' => 'UNAUTHORIZED',
+                'status_message' => __('hemend.Authentication error occurred'),
+            ], 401);
+        }
+
         $account = null;
         if ($this->user()) {
             $roles = $this->user()->getRoleNames();
@@ -30,7 +37,9 @@ class Handshake extends {{ version }} implements Endpoint
                     ->pluck('name');
             }
 
-            $account = $this->user()->makeVisible(['national_code', 'mobile'])->makeHidden(['permissions', 'roles']);
+            $account = $this->user()
+                ->makeVisible(['national_code', 'mobile'])
+                ->makeHidden(['permissions', 'roles']);
         } else {
             $role = \App\Models\AclRoles::query()
                 ->with(['permissions' => function($q) {

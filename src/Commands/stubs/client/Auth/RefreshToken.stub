@@ -25,7 +25,7 @@ class RefreshToken extends {{ version }} implements Endpoint
 
     public function __invoke()
     {
-        if($this->getRequest()->header('X-Token-Type') != AuthTokenType::RefreshToken->value || !$this->getRequest()->bearerToken()) {
+        if($this->getRequest()->header('X-Token-Type') != AuthTokenType::RefreshToken->value || !$this->hasToken()) {
             return response()->json([
                 'status_code' => 'REFRESH_TOKEN_INVALID',
                 'status_message' => __('hemend.The refresh token invalid')
@@ -33,7 +33,7 @@ class RefreshToken extends {{ version }} implements Endpoint
         }
 
         try {
-            $authTokens = $this->regenerateBearerTokenByRefreshToken($this->getRequest()->bearerToken());
+            $authTokens = $this->regenerateBearerTokenByRefreshToken($this->getToken());
             $userId = $authTokens['passport_token']['access_token']->getUserIdentifier();
 
             $user = Users::query()
