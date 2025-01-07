@@ -82,12 +82,7 @@ class SendCode extends {{ version }} implements Endpoint
         $code = mt_rand(1000, 9999);
 
         $length = 5;
-        if(PHP_VERSION >= 7) {
-            $bytes = \random_bytes($length);
-        } else {
-            $bytes = \openssl_random_pseudo_bytes($length);
-        }
-
+        $bytes = PHP_VERSION >= 7 ? \random_bytes($length) : \openssl_random_pseudo_bytes($length);
         $hash = bin2hex($bytes);
 
         UsersAuthCodes::create([
