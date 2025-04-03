@@ -41,10 +41,10 @@ class CreatePermissionTables extends Migration
 
     Schema::create($tableNames['roles'], function (Blueprint $table) use ($teams, $columnNames) {
       $table->bigIncrements('id'); // role id
-      $table->boolean('not_deleted')->default('1')->unsigned()->nullable()->comment('NULL=Deleted 1=Not Deleted');
-      $table->boolean('is_protected')->default('0')->unsigned()->comment('0=Deletable 1=Protected (not deletable)');
-      $table->boolean('activated')->default('1')->unsigned()->nullable()->comment('NULL=Inactivated 1=Activated');
-      $table->boolean('is_default')->unsigned()->nullable()->comment('1=Role that new users can select during registration');
+      $table->unsignedTinyInteger('not_deleted')->default('1')->nullable()->comment('NULL=Deleted 1=Not Deleted');
+      $table->unsignedTinyInteger('is_protected')->default('0')->comment('0=Deletable 1=Protected (not deletable)');
+      $table->unsignedTinyInteger('activated')->default('1')->nullable()->comment('NULL=Inactivated 1=Activated');
+      $table->unsignedTinyInteger('is_default')->nullable()->comment('1=Role that new users can select during registration');
       if ($teams || config('permission.testing')) { // permission.testing is a fix for sqlite testing
         $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable();
         $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');

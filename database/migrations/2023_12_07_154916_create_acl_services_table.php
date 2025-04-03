@@ -13,7 +13,7 @@ return new class extends Migration
   {
     Schema::create('acl_services', function (Blueprint $table) {
       $table->unsignedSmallInteger('id', true);
-      $table->boolean('activated')->default('1')->unsigned()->nullable()->comment('NULL=Inactivated 1=Activated');
+      $table->unsignedTinyInteger('activated')->default('1')->nullable()->comment('NULL=Inactivated 1=Activated');
       $table->string('name', 120);
       $table->string('title', 120);
       $table->string('guard_name', 120);
